@@ -1,0 +1,5 @@
+/.gradle/
+/.idea/
+/.mvn/wrapper/maven-wrapper.jar
+target/
+build/
