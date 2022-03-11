@@ -1,9 +1,11 @@
-package devoxx.lab.archihexa.courtage.domain.port.primaire;
+package devoxx.lab.archihexa.courtage.application.springboot;
 
-import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
+import io.restassured.mapper.ObjectMapper;
+import io.restassured.mapper.ObjectMapperDeserializationContext;
+import io.restassured.mapper.ObjectMapperSerializationContext;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -11,9 +13,27 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static java.util.Optional.ofNullable;
+
 public class CourtageStepDefinitions implements Fr {
+	private static final ObjectMapper BIGDECIMAL_MAPPER = new ObjectMapper() {
+		@Override
+		public Object deserialize(ObjectMapperDeserializationContext context) {
+			return new BigDecimal(context.getDataToDeserialize().asString());
+		}
+
+		@Override
+		public Object serialize(ObjectMapperSerializationContext context) {
+			return ofNullable(context.getObjectToSerialize())
+				.map(BigDecimal.class::cast)
+				.map(BigDecimal::toString)
+				.orElse(null);
+		}
+	};
+
 	public CourtageStepDefinitions() {
-		// étape 1
+		// étape 5
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
 			throw new io.cucumber.java8.PendingException();
 		});
@@ -23,14 +43,14 @@ public class CourtageStepDefinitions implements Fr {
 		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) -> {
 			throw new io.cucumber.java8.PendingException();
 		});
-
-		// étape 2
 		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> {
 			throw new io.cucumber.java8.PendingException();
 		});
 		Alors("une exception est levée : Portefeuille déjà géré", () -> {
 			throw new io.cucumber.java8.PendingException();
 		});
+
+		// étape 6
 		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
 			throw new io.cucumber.java8.PendingException();
 		});
@@ -41,11 +61,18 @@ public class CourtageStepDefinitions implements Fr {
 			throw new io.cucumber.java8.PendingException();
 		});
 
-		// étape 3
+		// étape 7
 		DataTableType(CoursBourse.CONVERTER);
 		Quand("(si )les cours de bourse suivants/sont/deviennent :", (DataTable dataTable) ->
 			dataTable.asList(CoursBourse.class).forEach(coursBourse -> {
-				throw new io.cucumber.java8.PendingException();
+				stubFor(get(urlEqualTo("/finance/quote/" + coursBourse.action))
+					.willReturn(aResponse()
+						.withStatus(200)
+						.withHeader("Content-Type", "application/json")
+						.withBody("{" +
+							"\"symbol\": \"" + coursBourse.action + "\"" +
+							",\"regularMarketPrice\": " + coursBourse.valeur +
+							"}")));
 			})
 		);
 		Quand("on demande au service de bourse la valeur de l'action {string}", (String nomAction) -> {
@@ -60,21 +87,10 @@ public class CourtageStepDefinitions implements Fr {
 				throw new io.cucumber.java8.PendingException();
 			})
 		);
-
-		// étape 4
 		Quand("on demande au service de courtage le calcul de la valeur de tous les portefeuilles", () -> {
 			throw new io.cucumber.java8.PendingException();
 		});
 		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-
-		// étape 8
-		DataTableType((Map<String, String> data) -> new Achat(data.get("action"), Integer.parseInt(data.get("nombre"))));
-		Soit("l'achat", (Achat achat) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("l'achat est invalide avec l'erreur", (DataTable expected) -> {
 			throw new io.cucumber.java8.PendingException();
 		});
 	}
@@ -88,7 +104,7 @@ public class CourtageStepDefinitions implements Fr {
 		final String action;
 		final BigDecimal valeur;
 
-		private CoursBourse(String action, BigDecimal valeur) {
+		private CoursBourse(String action, BigDecimal valeur) throws ParseException {
 			this.action = action;
 			this.valeur = valeur;
 		}
