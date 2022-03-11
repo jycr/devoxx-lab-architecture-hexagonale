@@ -1,0 +1,3 @@
+server:
+    # Choix d'un port aléatoire
+    port: 0
