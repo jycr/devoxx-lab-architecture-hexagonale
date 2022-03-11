@@ -14,4 +14,6 @@ public interface ServiceCourtage {
 	boolean gere(String nomPortefeuille);
 
 	void ajouteAction(int nombreActions, String nomAction, String nomPortefeuille) throws PortefeuilleNonGereException;
+
+	BigDecimal calculerValeurEnsemblePortefeuilles();
 }

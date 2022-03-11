@@ -27,6 +27,7 @@ public class CourtageStepDefinitions implements Fr {
 	private Exception thrownException = null;
 	private BigDecimal valeurPortefeuille = null;
 	private BigDecimal valeurAction = null;
+	private BigDecimal valeurEnsemblePortefeuilles = null;
 
 	public CourtageStepDefinitions() {
 		// étape 1
@@ -84,12 +85,10 @@ public class CourtageStepDefinitions implements Fr {
 		);
 
 		// étape 4
-		Quand("on demande au service de courtage le calcul de la valeur de tous les portefeuilles", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Quand("on demande au service de courtage le calcul de la valeur de tous les portefeuilles", () ->
+			valeurEnsemblePortefeuilles = serviceCourtage.calculerValeurEnsemblePortefeuilles());
+		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) ->
+			assertThat(this.valeurEnsemblePortefeuilles).isEqualByComparingTo(valeurPortefeuilles));
 	}
 
 	private static class CoursBourse {
