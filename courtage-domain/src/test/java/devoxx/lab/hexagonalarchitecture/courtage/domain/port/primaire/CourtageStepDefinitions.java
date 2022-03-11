@@ -1,7 +1,10 @@
 package devoxx.lab.hexagonalarchitecture.courtage.domain.port.primaire;
 
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleDejaExistantException;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleNonGereException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Portefeuille;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepository;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepositoryInMemoryMock;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
@@ -15,9 +18,11 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CourtageStepDefinitions implements Fr {
-	private ServiceCourtage serviceCourtage = new Courtage();
+	private final PortefeuilleRepository portefeuilleRepository = new PortefeuilleRepositoryInMemoryMock();
+	private ServiceCourtage serviceCourtage = new Courtage(portefeuilleRepository);
 	private Portefeuille portefeuilleCree;
 	private Exception thrownException = null;
+	private BigDecimal valeurPortefeuille = null;
 
 	public CourtageStepDefinitions() {
 		// étape 1
@@ -32,23 +37,22 @@ public class CourtageStepDefinitions implements Fr {
 			assertThat(portefeuilleCree.getNom()).isEqualTo(nomPortefeuille));
 		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) ->
 			assertThat(serviceCourtage.gere(nomPortefeuille)).isTrue());
-		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> assertThat(serviceCourtage.gere(nomPortefeuille)).isFalse());
 
 		// étape 2
-		Alors("une exception est levée : Portefeuille déjà géré", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("une exception est levée : Portefeuille déjà géré", () ->
+			assertThat(thrownException).isInstanceOf(PortefeuilleDejaExistantException.class));
 		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			try {
+				valeurPortefeuille = serviceCourtage.calculerValeurPortefeuille(nomPortefeuille);
+			} catch (PortefeuilleNonGereException e) {
+				thrownException = e;
+			}
 		});
-		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("une exception est levée : Portefeuille non géré", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) ->
+			assertThat(valeurPortefeuille).isEqualByComparingTo(valeur));
+		Alors("une exception est levée : Portefeuille non géré", () ->
+			assertThat(thrownException).isInstanceOf(PortefeuilleNonGereException.class));
 
 		// étape 3
 		DataTableType(CoursBourse.CONVERTER);
