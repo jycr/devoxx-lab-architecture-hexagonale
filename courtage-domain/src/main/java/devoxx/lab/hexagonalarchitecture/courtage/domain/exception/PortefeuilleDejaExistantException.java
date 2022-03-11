@@ -1,4 +1,4 @@
 package devoxx.lab.hexagonalarchitecture.courtage.domain.exception;
 
-public class PortefeuilleDejaExistantException extends Exception {
+public class PortefeuilleDejaExistantException extends RuntimeException {
 }

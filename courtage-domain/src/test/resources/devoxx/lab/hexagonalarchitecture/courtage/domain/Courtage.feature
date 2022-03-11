@@ -28,7 +28,7 @@ Fonctionnalité: Gestion du portefeuille
 		Alors le portefeuille "TOTO" est géré par le service de courtage
 		Et le portefeuille "TITI" est géré par le service de courtage
 
-	@E1 @etape-1
+	@E2 @etape-2
 	Scénario: Ajout d'un portefeuille et vérification de la non présence du portefeuille
 		Soit un service de courtage
 		Quand on demande au service de courtage la création du portefeuille "TOTO"
