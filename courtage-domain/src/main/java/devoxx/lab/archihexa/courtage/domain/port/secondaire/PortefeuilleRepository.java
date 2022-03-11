@@ -2,6 +2,7 @@ package devoxx.lab.archihexa.courtage.domain.port.secondaire;
 
 import devoxx.lab.archihexa.courtage.domain.model.Portefeuille;
 
+import java.util.Collection;
 import java.util.Optional;
 
 public interface PortefeuilleRepository {
@@ -10,4 +11,6 @@ public interface PortefeuilleRepository {
 	void sauvegarde(Portefeuille portefeuille);
 
 	Optional<Portefeuille> recupere(String id);
+
+	Collection<Portefeuille> recupereTous();
 }

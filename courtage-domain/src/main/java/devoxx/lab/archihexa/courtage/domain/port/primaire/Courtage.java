@@ -33,11 +33,8 @@ public class Courtage implements ServiceCourtage {
 		return portefeuilleRepository.existe(nomPortefeuille);
 	}
 
-	@Override
-	public BigDecimal calculerValeurPortefeuille(String nomPortefeuille) throws PortefeuilleNonGereException {
-		return portefeuilleRepository.recupere(nomPortefeuille)
-			.orElseThrow(PortefeuilleNonGereException::new)
-			.getActions().entrySet().stream()
+	private BigDecimal calculerValeurPortefeuille(Portefeuille portefeuille) {
+		return portefeuille.getActions().entrySet().stream()
 			.map(entry -> serviceBourse
 				// entry.getKey(): nom de l'action
 				.recupererCours(entry.getKey())
@@ -47,10 +44,25 @@ public class Courtage implements ServiceCourtage {
 	}
 
 	@Override
+	public BigDecimal calculerValeurPortefeuille(String nomPortefeuille) throws PortefeuilleNonGereException {
+		return calculerValeurPortefeuille(
+			portefeuilleRepository.recupere(nomPortefeuille)
+				.orElseThrow(PortefeuilleNonGereException::new)
+		);
+	}
+
+	@Override
 	public void ajouteAction(String nomPortefeuille, Achat achat) throws PortefeuilleNonGereException {
 		portefeuilleRepository.recupere(nomPortefeuille)
 			.orElseThrow(PortefeuilleNonGereException::new)
 			.ajouterAction(achat)
 		;
+	}
+
+	@Override
+	public BigDecimal calculerValeurEnsemblePortefeuilles() {
+		return portefeuilleRepository.recupereTous().stream()
+			.map(this::calculerValeurPortefeuille)
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}
 }
