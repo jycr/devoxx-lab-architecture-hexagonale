@@ -4,14 +4,17 @@ import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleDe
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleNonGereException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Portefeuille;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepository;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.ServiceBourse;
 
 import java.math.BigDecimal;
 
 public class Courtage implements ServiceCourtage {
 	private final PortefeuilleRepository portefeuilleRepository;
+	private final ServiceBourse serviceBourse;
 
-	public Courtage(PortefeuilleRepository portefeuilleRepository) {
+	public Courtage(PortefeuilleRepository portefeuilleRepository, ServiceBourse serviceBourse) {
 		this.portefeuilleRepository = portefeuilleRepository;
+		this.serviceBourse = serviceBourse;
 	}
 
 	public Portefeuille creerPortefeuille(String nomPortefeuille) throws PortefeuilleDejaExistantException {
@@ -29,7 +32,21 @@ public class Courtage implements ServiceCourtage {
 
 	public BigDecimal calculerValeurPortefeuille(String nomPortefeuille) throws PortefeuilleNonGereException {
 		return portefeuilleRepository.recupere(nomPortefeuille)
-			.map(portefeuille -> BigDecimal.ZERO)
-			.orElseThrow(PortefeuilleNonGereException::new);
+			.orElseThrow(PortefeuilleNonGereException::new)
+			.getActions().entrySet().stream()
+			.map(entry -> serviceBourse
+				// entry.getKey(): nom de l'action
+				.recupererCours(entry.getKey())
+				// entry.getValue() : nombre d'action
+				.multiply(new BigDecimal(entry.getValue())))
+			.reduce(BigDecimal.ZERO, BigDecimal::add);
+	}
+
+	@Override
+	public void ajouteAction(int nombreActions, String nomAction, String nomPortefeuille) throws PortefeuilleNonGereException {
+		portefeuilleRepository.recupere(nomPortefeuille)
+			.orElseThrow(PortefeuilleNonGereException::new)
+			.ajouterAction(nombreActions, nomAction)
+		;
 	}
 }
