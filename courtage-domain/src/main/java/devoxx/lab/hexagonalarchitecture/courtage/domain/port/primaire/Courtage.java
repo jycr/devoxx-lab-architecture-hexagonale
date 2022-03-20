@@ -1,5 +1,6 @@
 package devoxx.lab.hexagonalarchitecture.courtage.domain.port.primaire;
 
+import devoxx.lab.hexagonalarchitecture.courtage.domain.DomainService;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleDejaExistantException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleNonGereException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Portefeuille;
@@ -8,6 +9,7 @@ import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.ServiceB
 
 import java.math.BigDecimal;
 
+@DomainService
 public class Courtage implements ServiceCourtage {
 	private final PortefeuilleRepository portefeuilleRepository;
 	private final ServiceBourse serviceBourse;

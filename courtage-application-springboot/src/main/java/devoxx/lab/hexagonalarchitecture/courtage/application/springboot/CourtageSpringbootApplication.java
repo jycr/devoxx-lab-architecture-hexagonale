@@ -1,14 +1,21 @@
 package devoxx.lab.hexagonalarchitecture.courtage.application.springboot;
 
+import devoxx.lab.hexagonalarchitecture.courtage.domain.DomainService;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.context.event.EventListener;
 
 import java.util.Optional;
 
 @SpringBootApplication
+@ComponentScan(
+	basePackageClasses = {CourtageSpringbootApplication.class, DomainService.class},
+	includeFilters = {@ComponentScan.Filter(type = FilterType.ANNOTATION, value = {DomainService.class})}
+)
 public class CourtageSpringbootApplication {
 	private static ConfigurableApplicationContext applicationContext = null;
 	private int port = -1;
