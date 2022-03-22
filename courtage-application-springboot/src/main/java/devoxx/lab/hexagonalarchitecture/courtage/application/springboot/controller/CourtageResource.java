@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.math.BigDecimal;
 import java.net.URI;
 
 import static java.util.Optional.ofNullable;
@@ -60,11 +59,16 @@ public class CourtageResource {
 
 	@GetMapping("/portefeuilles/{nomPortefeuille}/valorisation")
 	public ResponseEntity<String> calculValorisationPortefeuille(@PathVariable(value = "nomPortefeuille") String nomPortefeuille) {
-		if (serviceCourtage.gere(nomPortefeuille)) {
-			return ResponseEntity.ok(BigDecimal.ZERO.toString());
-		} else {
+		try {
+			return ResponseEntity.ok(serviceCourtage.calculerValeurPortefeuille(nomPortefeuille).toString());
+		} catch (PortefeuilleNonGereException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Portefeuille non géré");
 		}
+	}
+
+	@GetMapping("/portefeuilles/avoirs")
+	public ResponseEntity<String> valeurEnsemblePortefeuilles() {
+		return ResponseEntity.ok(serviceCourtage.calculerValeurEnsemblePortefeuilles().toString());
 	}
 
 	@GetMapping(path = "/version", produces = MediaType.TEXT_PLAIN_VALUE)
