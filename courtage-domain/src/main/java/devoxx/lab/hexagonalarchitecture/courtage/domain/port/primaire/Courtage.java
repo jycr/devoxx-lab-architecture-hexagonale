@@ -51,15 +51,15 @@ public class Courtage implements ServiceCourtage {
 
 	@Override
 	public void ajouteAction(int nombreActions, String nomAction, String nomPortefeuille) throws PortefeuilleNonGereException {
-		portefeuilleRepository.recupere(nomPortefeuille)
-			.orElseThrow(PortefeuilleNonGereException::new)
-			.ajouterAction(nombreActions, nomAction)
-		;
+		Portefeuille portefeuille = portefeuilleRepository.recupere(nomPortefeuille)
+			.orElseThrow(PortefeuilleNonGereException::new);
+		portefeuille.ajouterAction(nombreActions, nomAction);
+		portefeuilleRepository.sauvegarde(portefeuille);
 	}
 
 	@Override
 	public BigDecimal calculerValeurEnsemblePortefeuilles() {
-		return portefeuilleRepository.recupereTous().stream()
+		return portefeuilleRepository.recupereTous()
 			.map(this::calculerValeurPortefeuille)
 			.reduce(BigDecimal.ZERO, BigDecimal::add);
 	}

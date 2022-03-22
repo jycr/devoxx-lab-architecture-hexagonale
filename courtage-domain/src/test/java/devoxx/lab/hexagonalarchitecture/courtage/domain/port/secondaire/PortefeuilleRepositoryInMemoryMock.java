@@ -2,10 +2,10 @@ package devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire;
 
 import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Portefeuille;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class PortefeuilleRepositoryInMemoryMock implements PortefeuilleRepository {
 	private final Map<String, Portefeuille> portefeuilles;
@@ -30,7 +30,12 @@ public class PortefeuilleRepositoryInMemoryMock implements PortefeuilleRepositor
 	}
 
 	@Override
-	public Collection<Portefeuille> recupereTous() {
-		return portefeuilles.values();
+	public Stream<Portefeuille> recupereTous() {
+		return portefeuilles.values().stream();
+	}
+
+	@Override
+	public void purge() {
+		portefeuilles.clear();
 	}
 }

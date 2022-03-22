@@ -1,6 +1,7 @@
 package devoxx.lab.hexagonalarchitecture.courtage.application.springboot;
 
 import devoxx.lab.hexagonalarchitecture.courtage.domain.DomainService;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
@@ -35,6 +36,12 @@ public class CourtageSpringbootApplication {
 		return Optional.ofNullable(applicationContext)
 			.map(ctx -> ctx.getBean(CourtageSpringbootApplication.class))
 			.map(app -> app.port);
+	}
+
+	static void raz() {
+		Optional.ofNullable(applicationContext)
+			.map(ctx -> ctx.getBean(PortefeuilleRepository.class))
+			.ifPresent(PortefeuilleRepository::purge);
 	}
 
 	@EventListener

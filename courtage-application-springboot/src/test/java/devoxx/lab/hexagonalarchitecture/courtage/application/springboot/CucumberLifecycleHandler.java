@@ -7,6 +7,10 @@ import io.cucumber.plugin.event.TestRunFinished;
 import io.cucumber.plugin.event.TestRunStarted;
 import io.restassured.RestAssured;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+
 import static io.restassured.RestAssured.when;
 
 public class CucumberLifecycleHandler implements EventListener {
@@ -33,6 +37,24 @@ public class CucumberLifecycleHandler implements EventListener {
 
 	private static void stopApiBourse() {
 		wireMockServer.stop();
+	}
+
+	private static File TEMP_DB_DIR = null;
+
+	private static void startBdd() {
+		try {
+			TEMP_DB_DIR = Files.createTempDirectory("courtage-bdd-").toFile();
+		} catch (IOException e) {
+			throw new IllegalStateException("Impossible de créer le dossier temporaire pour la base de données", e);
+		}
+	}
+
+	private static void stopBdd() {
+		org.springframework.util.FileSystemUtils.deleteRecursively(TEMP_DB_DIR);
+	}
+
+	private static String getJdbcUrl() {
+		return "jdbc:h2:./" + TEMP_DB_DIR.getName() + "/testDb";
 	}
 
 	private static void startCourtageApplication(String apiBourseBaseUri) {
