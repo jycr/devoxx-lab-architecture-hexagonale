@@ -13,6 +13,7 @@
 	<modules>
 		<module>courtage-domain</module>
 		<module>courtage-application-springboot</module>
+		<module>global-tests</module>
 	</modules>
 
 	<properties>
