@@ -1,0 +1,31 @@
+@startuml
+!include <logos/spring>
+
+skinparam packageStyle rectangle
+hide empty members
+
+
+package API {
+annotation RestController
+RestController : <$spring>
+class CourtageResource
+}
+
+package Domaine {
+class Courtage
+}
+
+package Persistance {
+class PortefeuilleRepositorySpringDataImpl
+interface PortefeuilleSpringDataCrudRepository
+interface CrudRepository<Portefeuille, String>
+CrudRepository : <$spring>
+}
+
+RestController <.. CourtageResource : est annotée
+CourtageResource ..> Courtage : utilise
+Courtage ..>  PortefeuilleRepositorySpringDataImpl : utilise
+Courtage ..>  PortefeuilleSpringDataCrudRepository : utilise
+PortefeuilleRepositorySpringDataImpl --* PortefeuilleSpringDataCrudRepository
+PortefeuilleSpringDataCrudRepository --|> CrudRepository
+@enduml

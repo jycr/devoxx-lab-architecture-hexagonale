@@ -1,0 +1,21 @@
+@startuml
+
+skinparam packageStyle rectangle
+hide empty members
+
+package API {
+class CourtageResource
+}
+
+package Domaine {
+class Courtage
+}
+
+package Persistance {
+class PortefeuilleRepositorySpringDataImpl
+}
+
+Courtage ..>  PortefeuilleRepositorySpringDataImpl : utilise
+CourtageResource ..> Courtage : utilise
+
+@enduml
