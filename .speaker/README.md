@@ -3,13 +3,13 @@ Ce dossier contient l'ensemble des ressources utiles pour les organisateurs ou o
 ## Affichage de la Keynote
 
 ```bash
-npx reveal-md ./README.md -w
+npm install && npm run keynote
 ```
 
 ## Pour imprimer la Keynote en PDF
 
 ```bash
-npx reveal-md ./README.md --print slides.pdf
+npm install && npm run pdf
 ```
 
 Si besoin de mieux contrôler les paramètres d'impression : aller sur l'URL :

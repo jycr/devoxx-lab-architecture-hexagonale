@@ -1,0 +1,11 @@
+{
+	"slideNumber": true,
+	"showSlideNumber": "print",
+	"pdfMaxPagesPerSlide": 1,
+	"disableLayout": false,
+	"width": 1240,
+	"height": 700,
+	"margin": 0.02,
+	"minScale": 0.1,
+	"maxScale": 3.0
+}
