@@ -55,3 +55,7 @@ html .reveal h6 {
 	width: 100%;
 	margin: 1rem 0;
 }
+
+.reveal code:not(.hljs) {
+	background-color: #DDD;
+}

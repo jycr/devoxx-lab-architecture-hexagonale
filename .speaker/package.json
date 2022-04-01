@@ -1,0 +1,13 @@
+{
+	"dependencies": {
+		"request": "2.88.2",
+		"md5": "2.3.0",
+		"reveal-md": "5.3.2",
+		"fflate": "0.7.3"
+	},
+	"scripts": {
+		"keynote": "reveal-md ../README.md --preprocessor preproc.js",
+		"keynote-live-reload": "reveal-md ../README.md --preprocessor preproc.js -w",
+		"pdf": "reveal-md ../README.md --preprocessor preproc.js --print keynote.pdf"
+	}
+}
