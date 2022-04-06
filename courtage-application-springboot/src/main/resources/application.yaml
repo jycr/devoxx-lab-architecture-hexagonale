@@ -1,2 +1,24 @@
 server:
     port: 8081
+
+spring:
+    datasource:
+        url: jdbc:h2:./.db/courtage-db
+        username: sa
+        password: password
+        driverClassName: org.h2.Driver
+    jpa:
+        properties:
+            hibernate:
+                show_sql: false
+                format_sql: false
+                use_sql_comments: false
+        database-platform: org.hibernate.dialect.H2Dialect
+        hibernate:
+            ddl-auto: update
+
+    h2:
+        # Mise à disposition d'une IHM pour visualiser le contenu de la BDD H2
+        console:
+            enabled: true
+            path: /h2-ui

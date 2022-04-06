@@ -18,6 +18,7 @@ import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.port;
 import static io.restassured.RestAssured.when;
 import static java.util.Optional.ofNullable;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 public class CourtageStepDefinitions implements Fr {
@@ -39,6 +40,8 @@ public class CourtageStepDefinitions implements Fr {
 	private ValidatableResponse response;
 
 	public CourtageStepDefinitions() {
+		CourtageSpringbootApplication.raz();
+
 		// étape 5
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) ->
 			response = when()
@@ -69,15 +72,25 @@ public class CourtageStepDefinitions implements Fr {
 				.body(equalTo("Portefeuille déjà géré")));
 
 		// étape 6
-		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("une exception est levée : Portefeuille non géré", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) ->
+			response = when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille + "/valorisation")
+				.then());
+		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) ->
+			assertThat(
+				response
+					.assertThat()
+					.statusCode(200)
+					.extract()
+					.body()
+					.as(BigDecimal.class, BIGDECIMAL_MAPPER)
+			)
+				.isEqualByComparingTo(valeur));
+		Alors("une exception est levée : Portefeuille non géré", () ->
+			response
+				.assertThat()
+				.statusCode(404)
+				.body(equalTo("Portefeuille non géré")));
 
 		// étape 7
 		DataTableType(CoursBourse.CONVERTER);
