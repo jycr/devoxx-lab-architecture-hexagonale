@@ -6,6 +6,7 @@ import io.cucumber.java8.Fr;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
+import io.restassured.response.ValidatableResponse;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -14,7 +15,10 @@ import java.util.Locale;
 import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static io.restassured.RestAssured.port;
+import static io.restassured.RestAssured.when;
 import static java.util.Optional.ofNullable;
+import static org.hamcrest.Matchers.equalTo;
 
 public class CourtageStepDefinitions implements Fr {
 	private static final ObjectMapper BIGDECIMAL_MAPPER = new ObjectMapper() {
@@ -32,23 +36,37 @@ public class CourtageStepDefinitions implements Fr {
 		}
 	};
 
+	private ValidatableResponse response;
+
 	public CourtageStepDefinitions() {
 		// étape 5
-		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) ->
+			response = when()
+				.post("/courtage/portefeuilles/" + nomPortefeuille)
+				.then());
+		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) ->
+			response
+				.assertThat()
+				.statusCode(201)
+				.header("location", "http://localhost:" + port + "/courtage/portefeuilles/" + nomPortefeuille));
 		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille)
+				.then()
+				.assertThat()
+				.statusCode(200);
 		});
-		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("une exception est levée : Portefeuille déjà géré", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) ->
+			when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille)
+				.then()
+				.assertThat()
+				.statusCode(404));
+		Alors("une exception est levée : Portefeuille déjà géré", () ->
+			response
+				.assertThat()
+				.statusCode(400)
+				.body(equalTo("Portefeuille déjà géré")));
 
 		// étape 6
 		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
