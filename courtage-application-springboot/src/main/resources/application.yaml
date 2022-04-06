@@ -1,6 +1,10 @@
 server:
     port: 8081
 
+application:
+    bourse:
+        baseUri: http://localhost:8090/
+
 spring:
     datasource:
         url: jdbc:h2:./.db/courtage-db
