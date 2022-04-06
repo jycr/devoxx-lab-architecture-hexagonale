@@ -7,22 +7,37 @@ import devoxx.lab.archihexa.courtage.domain.port.primaire.ServiceCourtage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
 @RestController
 @RequestMapping("/courtage")
+@Validated
 public class CourtageResource {
 
 	private final ServiceCourtage serviceCourtage;
 
 	public CourtageResource(ServiceCourtage serviceCourtage) {
 		this.serviceCourtage = serviceCourtage;
+	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	ResponseEntity<String> handleConstraintViolationException(MethodArgumentNotValidException e) {
+		return ResponseEntity
+			.status(HttpStatus.BAD_REQUEST)
+			.body(e.getFieldErrors().stream()
+				.map(fe -> "\t" + fe.getField() + " " + fe.getDefaultMessage())
+				.collect(Collectors.joining("\n", "Donnée(s) erronée(s): \\n\"", "")));
 	}
 
 	@PostMapping("/portefeuilles/{nomPortefeuille}")

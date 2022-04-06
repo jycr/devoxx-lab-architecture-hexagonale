@@ -1,9 +1,11 @@
 package devoxx.lab.archihexa.courtage.application.springboot;
 
+import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.ContentType;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
@@ -156,6 +158,12 @@ public class CourtageStepDefinitions implements Fr {
 				.as(BigDecimal.class, BIGDECIMAL_MAPPER)
 		)
 			.isEqualByComparingTo(valeurPortefeuilles));
+		// étape 8
+		Alors("une exception est levée : Donnée erronée avec le message {string}", (String message) ->
+			response
+				.assertThat()
+				.statusCode(400)
+				.body(equalTo("Donnée(s) erronée(s): \n" + "\t" + message)));
 	}
 
 	private static class CoursBourse {
