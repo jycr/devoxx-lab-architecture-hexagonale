@@ -11,7 +11,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.math.BigDecimal;
 import java.net.URI;
 import java.util.stream.Collectors;
 
@@ -57,11 +56,12 @@ public class CourtageResource {
 
 	@GetMapping("/portefeuilles/{nomPortefeuille}/valorisation")
 	public ResponseEntity<String> calculValorisationPortefeuille(@PathVariable(value = "nomPortefeuille") String nomPortefeuille) throws PortefeuilleNonGereException {
-		if (!serviceCourtage.gere(nomPortefeuille)) {
-			throw new PortefeuilleNonGereException();
-		}
-		return ResponseEntity.ok(BigDecimal.ZERO.toString());
+		return ResponseEntity.ok(serviceCourtage.calculerValeurPortefeuille(nomPortefeuille).toString());
+	}
 
+	@GetMapping("/portefeuilles/avoirs")
+	public ResponseEntity<String> valeurEnsemblePortefeuilles() {
+		return ResponseEntity.ok(serviceCourtage.calculerValeurEnsemblePortefeuilles().toString());
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
