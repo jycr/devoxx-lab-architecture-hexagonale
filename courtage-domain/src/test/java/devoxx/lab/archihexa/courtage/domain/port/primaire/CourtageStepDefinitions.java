@@ -1,5 +1,7 @@
 package devoxx.lab.archihexa.courtage.domain.port.primaire;
 
+import devoxx.lab.archihexa.courtage.domain.exception.PortefeuilleDejaExistantException;
+import devoxx.lab.archihexa.courtage.domain.model.Portefeuille;
 import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
@@ -11,18 +13,21 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class CourtageStepDefinitions implements Fr {
+	private final ServiceCourtage serviceCourtage = new Courtage();
+	private Portefeuille portefeuilleCree;
+
 	public CourtageStepDefinitions() {
 		// étape 1
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			portefeuilleCree = serviceCourtage.creerPortefeuille(nomPortefeuille);
 		});
-		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) ->
+			assertThat(portefeuilleCree.getNom()).isEqualTo(nomPortefeuille));
+		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) ->
+			assertThat(serviceCourtage.gere(nomPortefeuille)).isTrue());
 
 		// étape 2
 		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> {
