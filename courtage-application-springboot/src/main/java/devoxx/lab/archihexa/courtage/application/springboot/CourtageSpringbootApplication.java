@@ -3,6 +3,7 @@ package devoxx.lab.archihexa.courtage.application.springboot;
 import devoxx.lab.archihexa.courtage.application.springboot.adapters.mixin.AchatJsonDto;
 import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import devoxx.lab.archihexa.courtage.domain.port.primaire.ServiceCourtage;
+import devoxx.lab.archihexa.courtage.domain.port.secondaire.PortefeuilleRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
@@ -40,6 +41,9 @@ public class CourtageSpringbootApplication {
 	}
 
 	static void raz() {
+		Optional.ofNullable(applicationContext)
+			.map(ctx -> ctx.getBean(PortefeuilleRepository.class))
+			.ifPresent(PortefeuilleRepository::purge);
 	}
 
 	@EventListener

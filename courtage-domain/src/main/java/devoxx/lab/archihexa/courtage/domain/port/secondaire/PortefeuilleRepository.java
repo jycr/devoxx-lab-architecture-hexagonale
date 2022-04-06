@@ -4,6 +4,7 @@ import devoxx.lab.archihexa.courtage.domain.model.Portefeuille;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public interface PortefeuilleRepository {
 	boolean existe(String nomPortefeuille);
@@ -12,5 +13,7 @@ public interface PortefeuilleRepository {
 
 	Optional<Portefeuille> recupere(String id);
 
-	Collection<Portefeuille> recupereTous();
+	Stream<Portefeuille> recupereTous();
+
+	void purge();
 }

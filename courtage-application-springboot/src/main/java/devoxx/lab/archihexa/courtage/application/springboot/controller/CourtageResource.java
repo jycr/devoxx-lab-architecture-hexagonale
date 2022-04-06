@@ -2,6 +2,7 @@ package devoxx.lab.archihexa.courtage.application.springboot.controller;
 
 import devoxx.lab.archihexa.courtage.domain.exception.PortefeuilleDejaExistantException;
 import devoxx.lab.archihexa.courtage.domain.exception.PortefeuilleNonGereException;
+import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import devoxx.lab.archihexa.courtage.domain.port.primaire.ServiceCourtage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.math.BigDecimal;
 import java.net.URI;
 import java.util.stream.Collectors;
 
@@ -42,6 +44,24 @@ public class CourtageResource {
 		serviceCourtage.creerPortefeuille(nomPortefeuille);
 		URI uri = ServletUriComponentsBuilder.fromCurrentRequest().build(nomPortefeuille);
 		return ResponseEntity.created(uri).build();
+	}
+
+	@PostMapping("/portefeuilles/{nomPortefeuille}/actions")
+	public ResponseEntity<String> ajoutActionsDansPortefeuille(
+		@PathVariable(value = "nomPortefeuille") String nomPortefeuille,
+		@RequestBody Achat achat
+	) throws PortefeuilleNonGereException {
+		serviceCourtage.ajouteAction(nomPortefeuille, achat);
+		return ResponseEntity.ok().build();
+	}
+
+	@GetMapping("/portefeuilles/{nomPortefeuille}/valorisation")
+	public ResponseEntity<String> calculValorisationPortefeuille(@PathVariable(value = "nomPortefeuille") String nomPortefeuille) throws PortefeuilleNonGereException {
+		if (!serviceCourtage.gere(nomPortefeuille)) {
+			throw new PortefeuilleNonGereException();
+		}
+		return ResponseEntity.ok(BigDecimal.ZERO.toString());
+
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
