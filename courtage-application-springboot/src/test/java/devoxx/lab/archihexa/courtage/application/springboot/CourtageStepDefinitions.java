@@ -158,6 +158,12 @@ public class CourtageStepDefinitions implements Fr {
 				.as(BigDecimal.class, BIGDECIMAL_MAPPER)
 		)
 			.isEqualByComparingTo(valeurPortefeuilles));
+		// étape 8
+		Alors("une exception est levée : Donnée erronée avec le message {string}", (String message) ->
+			response
+				.assertThat()
+				.statusCode(400)
+				.body(equalTo("Donnée(s) erronée(s): \n" + "\t" + message)));
 	}
 
 	private static class CoursBourse {
