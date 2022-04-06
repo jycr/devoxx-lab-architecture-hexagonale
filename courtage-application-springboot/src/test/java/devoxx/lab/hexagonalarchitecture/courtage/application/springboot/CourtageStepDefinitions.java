@@ -1,9 +1,11 @@
 package devoxx.lab.hexagonalarchitecture.courtage.application.springboot;
 
+import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Achat;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
 import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.ContentType;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
@@ -135,8 +137,11 @@ public class CourtageStepDefinitions implements Fr {
 		Quand("^on demande au service de courtage d'ajouter (?:l'|les )actions? suivantes? :$", (DataTable dataTable) ->
 			dataTable.asList(AjoutAction.class).forEach(ajoutAction -> {
 				response = given()
-					.formParam("action", ajoutAction.action)
-					.formParam("nombre", ajoutAction.nombre)
+					.contentType(ContentType.JSON)
+					.body(
+						new Achat(ajoutAction.action, ajoutAction.nombre)
+//						String.format("{\"action\": \"%s\", \"nombre\": %d}",ajoutAction.action, ajoutAction.nombre)
+					)
 					.when()
 					.post("/courtage/portefeuilles/" + ajoutAction.portefeuille + "/actions")
 					.then();
@@ -158,13 +163,11 @@ public class CourtageStepDefinitions implements Fr {
 			.isEqualByComparingTo(valeurPortefeuilles));
 
 		// étape 8
-		Alors("une exception est levée : Code action erronné", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-
-		Alors("une exception est levée : Nombre d'action erronné", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("une exception est levée : Donnée erronée avec le message {string}", (String message) ->
+			response
+				.assertThat()
+				.statusCode(400)
+				.body(equalTo("Donnée(s) erronée(s): \n" + "\t" + message)));
 
 	}
 

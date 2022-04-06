@@ -7,16 +7,21 @@ import devoxx.lab.hexagonalarchitecture.courtage.domain.port.primaire.ServiceCou
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 
 @RestController
 @RequestMapping("/courtage")
+@Validated
 public class CourtageResource {
 
 	private final ServiceCourtage serviceCourtage;
@@ -24,6 +29,18 @@ public class CourtageResource {
 	public CourtageResource(ServiceCourtage serviceCourtage) {
 		this.serviceCourtage = serviceCourtage;
 	}
+
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
+	ResponseEntity<String> handleConstraintViolationException(MethodArgumentNotValidException e) {
+		return new ResponseEntity<>("Donnée(s) erronée(s): \n" +
+		e.getFieldErrors().stream()
+			.map(fe -> "\t" + fe.getField() + " " + fe.getDefaultMessage())
+			.collect(Collectors.joining("\n"))
+			,
+			HttpStatus.BAD_REQUEST);
+	}
+
 
 	@PostMapping("/portefeuilles/{nomPortefeuille}")
 	public ResponseEntity<String> creationPortefeuille(@PathVariable(value = "nomPortefeuille") String nomPortefeuille) {
@@ -39,7 +56,7 @@ public class CourtageResource {
 	@PostMapping("/portefeuilles/{nomPortefeuille}/actions")
 	public ResponseEntity<String> ajoutActionsDansPortefeuille(
 		@PathVariable(value = "nomPortefeuille") String nomPortefeuille,
-		Achat achat
+		@Valid @RequestBody Achat achat
 	) {
 		try {
 			serviceCourtage.ajouteAction(nomPortefeuille, achat);

@@ -1,14 +1,18 @@
 package devoxx.lab.hexagonalarchitecture.courtage.application.springboot;
 
+import devoxx.lab.hexagonalarchitecture.courtage.application.springboot.adapters.mixin.AchatMixIn;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.DomainService;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Achat;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepository;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.util.Optional;
 
@@ -47,5 +51,13 @@ public class CourtageSpringbootApplication {
 	@EventListener
 	public void onApplicationEvent(final ServletWebServerInitializedEvent event) {
 		port = event.getWebServer().getPort();
+	}
+
+	@Bean
+	Jackson2ObjectMapperBuilder objectMapperBuilder() {
+		Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+		// Configure the builder to suit your needs
+		builder.mixIn(Achat.class, AchatMixIn.class);
+		return builder;
 	}
 }

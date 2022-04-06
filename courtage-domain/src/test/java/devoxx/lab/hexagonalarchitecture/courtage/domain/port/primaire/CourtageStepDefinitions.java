@@ -11,12 +11,19 @@ import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.ServiceB
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
+import org.assertj.core.groups.Tuple;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,13 +31,23 @@ public class CourtageStepDefinitions implements Fr {
 	private final PortefeuilleRepository portefeuilleRepository = new PortefeuilleRepositoryInMemoryMock();
 	private final ServiceBourse serviceBourse = new ServiceBourseMock();
 	private final ServiceCourtage serviceCourtage = new Courtage(portefeuilleRepository, serviceBourse);
+	private final Validator validator;
+	private Achat achat;
 	private Portefeuille portefeuilleCree;
 	private Exception thrownException = null;
 	private BigDecimal valeurPortefeuille = null;
 	private BigDecimal valeurAction = null;
 	private BigDecimal valeurEnsemblePortefeuilles = null;
 
+	static {
+		// Pour s'assurer des messages BeanValidation en Fr
+		Locale.setDefault(Locale.FRANCE);
+	}
+
 	public CourtageStepDefinitions() {
+		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+		validator = factory.getValidator();
+
 		// étape 1
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
 			try {
@@ -92,15 +109,24 @@ public class CourtageStepDefinitions implements Fr {
 			assertThat(this.valeurEnsemblePortefeuilles).isEqualByComparingTo(valeurPortefeuilles));
 
 		// étape 8
-		Soit("l'achat", () -> {
-			throw new io.cucumber.java8.PendingException();
+		Soit("l'achat", (Achat achat) -> {
+			this.achat = achat;
 		});
 
-		Alors("l'achat est invalide avec l'erreur", () -> {
-			throw new io.cucumber.java8.PendingException();
+		Alors("l'achat est invalide avec l'erreur", (DataTable expected) -> {
+			Set<ConstraintViolation<Achat>> violations = validator.validate(achat);
+			assertThat(violations)
+				.extracting("interpolatedMessage", "propertyPath.currentLeafNode.name")
+				.containsExactlyInAnyOrderElementsOf(
+					expected.asMaps().stream()
+						.map(e -> new Tuple(e.get("message"), e.get("propriété")))
+						.collect(Collectors.toList()));
 		});
+
+		DataTableType((Map<String, String> data) -> new Achat(data.get("action"), Integer.parseInt(data.get("nombre"))));
 
 	}
+
 
 	private static class CoursBourse {
 		private static final NumberFormat NF = NumberFormat.getInstance(Locale.FRENCH);
