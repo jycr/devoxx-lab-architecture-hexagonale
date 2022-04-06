@@ -11,7 +11,9 @@ import devoxx.lab.archihexa.courtage.domain.port.secondaire.ServiceBourseMock;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
+import org.assertj.core.groups.Tuple;
 
+import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.math.BigDecimal;
@@ -19,6 +21,8 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -33,6 +37,7 @@ public class CourtageStepDefinitions implements Fr {
 	private final PortefeuilleRepository portefeuilleRepository = new PortefeuilleRepositoryMock();
 	private final ServiceBourse serviceBourse = new ServiceBourseMock();
 	private final ServiceCourtage serviceCourtage = new Courtage(portefeuilleRepository, serviceBourse);
+	private Achat achat;
 	private Portefeuille portefeuilleCree;
 	private Exception thrownException = null;
 	private BigDecimal valeurPortefeuille = null;
@@ -102,11 +107,16 @@ public class CourtageStepDefinitions implements Fr {
 
 		// étape 8
 		DataTableType((Map<String, String> data) -> new Achat(data.get("action"), Integer.parseInt(data.get("nombre"))));
-		Soit("l'achat", (Achat achat) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Soit("l'achat", (Achat achat) ->
+			this.achat = achat);
 		Alors("l'achat est invalide avec l'erreur", (DataTable expected) -> {
-			throw new io.cucumber.java8.PendingException();
+			Set<ConstraintViolation<Achat>> violations = validator.validate(achat);
+			assertThat(violations)
+				.extracting("interpolatedMessage", "propertyPath.currentLeafNode.name")
+				.containsExactlyInAnyOrderElementsOf(
+					expected.asMaps().stream()
+						.map(e -> new Tuple(e.get("message"), e.get("propriété")))
+						.collect(Collectors.toList()));
 		});
 	}
 

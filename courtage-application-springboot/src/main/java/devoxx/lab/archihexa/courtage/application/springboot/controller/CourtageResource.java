@@ -7,10 +7,12 @@ import devoxx.lab.archihexa.courtage.domain.port.primaire.ServiceCourtage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.validation.Valid;
 import java.net.URI;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,7 @@ import static java.util.Optional.ofNullable;
 
 @RestController
 @RequestMapping("/courtage")
+@Validated
 public class CourtageResource {
 	private final ServiceCourtage serviceCourtage;
 
@@ -48,7 +51,7 @@ public class CourtageResource {
 	@PostMapping("/portefeuilles/{nomPortefeuille}/actions")
 	public ResponseEntity<String> ajoutActionsDansPortefeuille(
 		@PathVariable(value = "nomPortefeuille") String nomPortefeuille,
-		@RequestBody Achat achat
+		@RequestBody @Valid Achat achat
 	) throws PortefeuilleNonGereException {
 		serviceCourtage.ajouteAction(nomPortefeuille, achat);
 		return ResponseEntity.ok().build();
