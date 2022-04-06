@@ -156,6 +156,16 @@ public class CourtageStepDefinitions implements Fr {
 				.as(BigDecimal.class, BIGDECIMAL_MAPPER)
 		)
 			.isEqualByComparingTo(valeurPortefeuilles));
+
+		// étape 8
+		Alors("une exception est levée : Code action erronné", () -> {
+			throw new io.cucumber.java8.PendingException();
+		});
+
+		Alors("une exception est levée : Nombre d'action erronné", () -> {
+			throw new io.cucumber.java8.PendingException();
+		});
+
 	}
 
 	private static class CoursBourse {

@@ -24,10 +24,10 @@ public class Portefeuille {
 		return nom;
 	}
 
-	public void ajouterAction(int nombreActions, String nomAction) {
+	public void ajouterAction(Achat achat) {
 		actions.compute(
-			nomAction,
-			(action, ancienNbActions) -> ofNullable(ancienNbActions).orElse(0) + nombreActions
+			achat.getAction(),
+			(action, ancienNbActions) -> ofNullable(ancienNbActions).orElse(0) + achat.getNombre()
 		);
 	}
 

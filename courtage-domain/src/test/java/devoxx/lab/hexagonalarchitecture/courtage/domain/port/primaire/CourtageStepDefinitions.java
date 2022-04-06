@@ -2,6 +2,7 @@ package devoxx.lab.hexagonalarchitecture.courtage.domain.port.primaire;
 
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleDejaExistantException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleNonGereException;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Achat;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Portefeuille;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepository;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepositoryInMemoryMock;
@@ -77,7 +78,7 @@ public class CourtageStepDefinitions implements Fr {
 		Quand("^on demande au service de courtage d'ajouter (?:l'|les )actions? suivantes? :$", (DataTable dataTable) ->
 			dataTable.asList(AjoutAction.class).forEach(ajoutAction -> {
 				try {
-					serviceCourtage.ajouteAction(ajoutAction.nombre, ajoutAction.action, ajoutAction.portefeuille);
+					serviceCourtage.ajouteAction(ajoutAction.portefeuille, new Achat(ajoutAction.action, ajoutAction.nombre));
 				} catch (PortefeuilleNonGereException e) {
 					thrownException = e;
 				}
@@ -89,6 +90,16 @@ public class CourtageStepDefinitions implements Fr {
 			valeurEnsemblePortefeuilles = serviceCourtage.calculerValeurEnsemblePortefeuilles());
 		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) ->
 			assertThat(this.valeurEnsemblePortefeuilles).isEqualByComparingTo(valeurPortefeuilles));
+
+		// étape 8
+		Soit("l'achat", () -> {
+			throw new io.cucumber.java8.PendingException();
+		});
+
+		Alors("l'achat est invalide avec l'erreur", () -> {
+			throw new io.cucumber.java8.PendingException();
+		});
+
 	}
 
 	private static class CoursBourse {

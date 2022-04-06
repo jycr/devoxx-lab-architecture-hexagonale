@@ -3,6 +3,7 @@ package devoxx.lab.hexagonalarchitecture.courtage.domain.port.primaire;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.DomainService;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleDejaExistantException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleNonGereException;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Achat;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Portefeuille;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.PortefeuilleRepository;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.secondaire.ServiceBourse;
@@ -50,10 +51,10 @@ public class Courtage implements ServiceCourtage {
 	}
 
 	@Override
-	public void ajouteAction(int nombreActions, String nomAction, String nomPortefeuille) throws PortefeuilleNonGereException {
+	public void ajouteAction(String nomPortefeuille, Achat achat) throws PortefeuilleNonGereException {
 		Portefeuille portefeuille = portefeuilleRepository.recupere(nomPortefeuille)
 			.orElseThrow(PortefeuilleNonGereException::new);
-		portefeuille.ajouterAction(nombreActions, nomAction);
+		portefeuille.ajouterAction(achat);
 		portefeuilleRepository.sauvegarde(portefeuille);
 	}
 

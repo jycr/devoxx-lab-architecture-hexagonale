@@ -2,6 +2,7 @@ package devoxx.lab.hexagonalarchitecture.courtage.application.springboot.control
 
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleDejaExistantException;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.exception.PortefeuilleNonGereException;
+import devoxx.lab.hexagonalarchitecture.courtage.domain.model.Achat;
 import devoxx.lab.hexagonalarchitecture.courtage.domain.port.primaire.ServiceCourtage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -38,11 +39,10 @@ public class CourtageResource {
 	@PostMapping("/portefeuilles/{nomPortefeuille}/actions")
 	public ResponseEntity<String> ajoutActionsDansPortefeuille(
 		@PathVariable(value = "nomPortefeuille") String nomPortefeuille,
-		@RequestParam String action,
-		@RequestParam int nombre
+		Achat achat
 	) {
 		try {
-			serviceCourtage.ajouteAction(nombre, action, nomPortefeuille);
+			serviceCourtage.ajouteAction(nomPortefeuille, achat);
 		} catch (PortefeuilleNonGereException e) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Portefeuille non géré");
 		}
