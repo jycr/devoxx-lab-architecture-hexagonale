@@ -1,9 +1,15 @@
 package devoxx.lab.archihexa.courtage.domain.model;
 
-public class Achat {
-	private final String action;
-	private final int nombre;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 
+public class Achat {
+	@NotNull
+	@Pattern(regexp = "^[\\p{IsLatin}0-9]{2,5}$", message = "doit être composé de 2 à 5 caractères latins")
+	private final String action;
+	@Min(1)
+	private final int nombre;
 	public Achat(String nomAction, int nombre) {
 		this.action = nomAction;
 		this.nombre = nombre;

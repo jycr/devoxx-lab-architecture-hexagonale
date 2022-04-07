@@ -3,6 +3,7 @@
 
 Fonctionnalité: Validation des données
 
+	@E8
 	Scénario: code action trop long
 		Quand on demande au service de courtage la création du portefeuille "FOO-10"
 		Et qu'on demande au service de courtage d'ajouter l'action suivante :
