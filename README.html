@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <title>Architecture Hexagonale - DevoxxFR Lab</title>
+    <link rel="shortcut icon" href=".speaker/keynote_assets/favicon.ico" />
+    <link rel="stylesheet" href=".speaker/keynote_assets/dist/reset.css" />
+    <link rel="stylesheet" href=".speaker/keynote_assets/dist/reveal.css" />
+    <link rel="stylesheet" href=".speaker/theme/theme.css" id="theme" />
+    <link rel="stylesheet" href=".speaker/keynote_assets/css/highlight/zenburn.css" />
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides"><section  data-markdown><script type="text/template"># Lab - Architecture Hexagonale
+</script></section><section ><section data-markdown><script type="text/template">
+## Préparation
+
+**☛ <u>à faire impérativement AVANT le Lab !!!</u> ☚**
+
+Pour améliorer au maximum votre confort dans le déroulement de ce lab :<br/>
+effectuer les actions suivantes **avant** le début du lab<br/>
+... de préférence chez vous<br/>
+(avec une bonne connexion internet)
+
+```bash
+git clone https://github.com/javathought/lab-archi-hexa
+cd devoxx-lab-architecture-hexagonale
+git switch main && ./mvnw dependency:go-offline
+```
+</script></section><section data-markdown><script type="text/template">
+## Prérequis pour ce lab
+
+* Connaitre le langage Java
+* Avoir des bases dans l'usage de Git, Maven, Cucumber
+* Avoir un JDK (Java >= 11)
+* Avoir un IDE
+</script></section><section data-markdown><script type="text/template">
+## Envie de se familiariser avec les concepts avant ?
+
+- [Pérennisez votre métier avec l’architecture hexagonale <small>(Publicis Sapient - ex: Xebia)</small>](https://blog.xebia.fr/2016/03/16/perennisez-votre-metier-avec-larchitecture-hexagonale/)
+- [Architecture Hexagonale : trois principes et un exemple d’implémentation <small>(Octo)</small>](https://blog.octo.com/architecture-hexagonale-trois-principes-et-un-exemple-dimplementation/)
+- [Architecture hexagonale pour les nuls <small>(Y. Chéné - Devoxx FR 2018)</small>](https://www.youtube.com/watch?v=Hi5aDfRe-aE)
+- [Architecture hexagonale <small>(Eleven Labs)</small>](https://blog.eleven-labs.com/fr/architecture-hexagonale/)
+
+<aside class="notes"><p><strong>Autres ressources</strong></p>
+<ul>
+<li><a href="https://herbertograca.com/2017/11/16/explicit-architecture-01-ddd-hexagonal-onion-clean-cqrs-how-i-put-it-all-together/">DDD, Hexagonal, Onion, Clean, CQRS, … How I put it all together</a></li>
+<li><a href="https://en.wikibooks.org/wiki/Java_Persistence/ElementCollection#Example_of_a_ElementCollection_relationship_to_a_basic_value_XML">WikiBooks - Java Persistence/ElementCollection - Example of a ElementCollection relationship to a basic value XML</a></li>
+</ul>
+</aside></script></section></section><section  data-markdown><script type="text/template">
+## Vos "accompagnateurs" pour ce lab ...
+
+<table>
+<tr>
+	<th scope="col" style="text-align:center">Pascal</th>
+	<th scope="col" style="text-align:center">JY</th>
+</tr>
+<tr>
+	<td><img src="https://s3.amazonaws.com/garmin-connect-prod/profile_images/1b691e8a-88f0-4237-92d9-5def9ae7e8e4-1363476.png" alt="" width="300"/></td>
+	<td><img src="https://lh3.googleusercontent.com/a-/AOh14GhY9dkmjmpi-s_E41iik_7C2_gCQPnm_nSzop9KSg=s576-p-rw-no" alt="" width="300"/></td>
+</tr>
+</table>
+</script></section><section  data-markdown><script type="text/template">
+## Objectifs
+
+Développer un petit système de courtage boursier
+
+→ en s'appuyant sur une<br/>
+**architecture applicative hexagonale**
+</script></section><section ><section data-markdown><script type="text/template">
+## L'architecture hexagonale ...
+
+... pour répondre à certains enjeux comme :
+
+* Mieux s'adapter à l'obsolescence technologique
+* Avoir un feedback plus rapide :
+  * Amélioration de la testabilité
+  * Faire des "démos" plus tôt
+
+<aside class="notes"><ul>
+<li>Obsolescence technologique :<ul>
+<li>Choisir les frameworks le plus tard possible</li>
+<li>Changer de frameworks sans toucher au métier</li>
+</ul>
+</li>
+<li>Feedback de dev :<ul>
+<li>Pas besoin de démarrer toute la stack pour tester le métier</li>
+</ul>
+</li>
+</ul>
+</aside></script></section><section data-markdown><script type="text/template">
+## Différentes orientations
+
+<img src=".speaker/plantumlGenerated/plantuml-936db20f0f383f67f29b1cb90d0c8ef4.svg" alt=""/>
+
+<aside class="notes"><p>Les principes de &quot;Clean Architecture&quot; → Le domaine métier : au centre</p>
+</aside></script></section></section><section ><section data-markdown><script type="text/template">
+## Organisation du lab
+
+... en plusieurs étapes jusqu'à la solution finale :
+
+<img src=".speaker/plantumlGenerated/plantuml-7a9008ccb9171869ee65a6bdc08749c0.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+### Pour chaque étape ...
+
+* un tag Git<br/>
+  <small>partir duquel vous pourrez créer une branche pour vos développements</small>
+* les exigences à couvrir<br/>
+  <small>sous forme de scénarios écrit en langage [Gherkin](https://cucumber.io/docs/gherkin/)</small>
+</script></section><section data-markdown><script type="text/template">
+### La structure de base du projet ...
+
+comporte :
+
+* une chaine de build Maven
+* une mise en place de Cucumber<br/>
+  <small>avec un embryon de "glue" pour faciliter l'exécution des exigences</small>
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 1 : objectif
+
+Mise en place du _métier de l'application_<br/>
+**sans intégrer de framework technique**
+
+> *Un service de courtage gére une liste de portefeuille*
+
+* Code à créer dans le module :<br/>
+  `courtage-domain`
+</script></section><section data-markdown><script type="text/template">
+## Nouvelles exigences à couvrir
+
+<div style="font-size:0.8em">
+
+```gherkin
+Scénario: Récupération de l'identifiant d'un portefeuille
+	Quand on demande au service de courtage la création du portefeuille "FOO-1"
+	Alors l'id du portefeuille créé doit être "FOO-1"
+
+Scénario: Récupération de l'identifiant d'un autre portefeuille
+	Quand on demande au service de courtage la création du portefeuille "BAR-2"
+	Alors l'id du portefeuille créé doit être "BAR-2"
+
+Scénario: Ajout d'un portefeuille et vérification de la présence du portefeuille
+	Quand on demande au service de courtage la création du portefeuille "FOO-3"
+	Alors le portefeuille "FOO-3" est géré par le service de courtage
+
+Scénario: Création de 2 portefeuilles et vérification de la présence de ces 2 portefeuilles
+	Quand on demande au service de courtage la création du portefeuille "FOO-4"
+	Et qu'on demande au service de courtage la création du portefeuille "BAR-4"
+	Alors le portefeuille "FOO-4" est géré par le service de courtage
+	Et le portefeuille "BAR-4" est géré par le service de courtage
+```
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-120px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-3f9109baf343bcec24e15f714c6c775d.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ :
+
+```bash
+git stash && git switch -c dev-etape-1 etape-1
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -pl courtage-domain -am -Dcucumber.filter.tags="@E1"
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 2
+
+* Mise en oeuvre du *PortefeuilleRepository*
+* Création d'un bouchon<br/>
+  <small>(une implémentation basée sur `HashMap`, dans les packages de test, suffira)</small>
+</script></section><section data-markdown><script type="text/template">
+## Nouvelles exigences à couvrir
+
+<div style="font-size:0.8em">
+
+```gherkin
+Scénario: Ajout d'un portefeuille et vérification de la non présence du portefeuille
+	Quand on demande au service de courtage la création du portefeuille "FOO-6"
+	Alors le portefeuille "INCONNU" n'est pas géré par le service de courtage
+
+Scénario: Un portefeuille doit être unique pour un service de courtage
+	Quand on demande au service de courtage la création du portefeuille "FOO-7"
+	Et qu'on demande au service de courtage la création du portefeuille "FOO-7"
+	Alors une exception est levée : Portefeuille déjà géré
+
+Scénario: Calcul de la valeur d'un portefeuille vide
+	Quand on demande au service de courtage la création du portefeuille "FOO-8"
+	Et qu'on demande le calcul de la valeur du portefeuille "FOO-8"
+	Alors la valeur du portefeuille est 0,0
+
+Scénario: Calcul de la valeur d'un portefeuille non géré
+	Quand on demande au service de courtage la création du portefeuille "FOO-9"
+	Et qu'on demande le calcul de la valeur du portefeuille "INCONNU"
+	Alors une exception est levée : Portefeuille non géré
+```
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-160px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-fedb7fddd48d0081a6073405414c5839.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-2 etape-2
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -pl courtage-domain -am -Dcucumber.filter.tags="@E2"
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 3
+
+* Ajout de la gestion des actions au domaine métier
+* Mise en place d'un bouchon pour la bourse
+</script></section><section data-markdown><script type="text/template">
+## Nouvelles exigences à couvrir
+
+<div style="font-size:0.6em">
+
+```gherkin
+Scénario: Récupération par le service de bourse de la valeur d'une action
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| TEST   | 0,1    |
+	Quand on demande au service de bourse la valeur de l'action "TEST"
+	Alors la valeur récupérée pour l'action est 0,1
+
+Scénario: Calcul de la valeur d'un portefeuille avec une action
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| TEST   | 0,1    |
+	Quand on demande au service de courtage la création du portefeuille "FOO-10"
+	Et qu'on demande au service de courtage d'ajouter l'action suivante :
+		| Portefeuille | Action | Nombre |
+		| FOO-10       | TEST   | 1      |
+	Et qu'on demande le calcul de la valeur du portefeuille "FOO-10"
+	Alors la valeur du portefeuille est 0,1
+
+Scénario: Ajout d'une action à un portefeuille inexistant
+	Quand on demande au service de courtage d'ajouter l'action suivante :
+		| Portefeuille | Action | Nombre |
+		| INCONNU      | TEST   | 1      |
+	Alors une exception est levée : Portefeuille non géré
+
+Scénario: Calcul de la valeur d'un portefeuille avec deux action
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| TEST   | 0,1    |
+	Quand on demande au service de courtage la création du portefeuille "FOO-11"
+	Et qu'on demande au service de courtage d'ajouter l'action suivante :
+		| Portefeuille | Action | Nombre |
+		| FOO-11       | TEST   | 2      |
+	Et qu'on demande le calcul de la valeur du portefeuille "FOO-11"
+	Alors la valeur du portefeuille est 0,2
+
+Scénario: Calcul de la valeur d'un portefeuille avec deux actions au cours de 0,2
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| TEST   | 0,2    |
+	Quand on demande au service de courtage la création du portefeuille "FOO-12"
+	Et qu'on demande au service de courtage d'ajouter l'action suivante :
+		| Portefeuille | Action | Nombre |
+		| FOO-12       | TEST   | 2      |
+	Et qu'on demande le calcul de la valeur du portefeuille "FOO-12"
+	Alors la valeur du portefeuille est 0,4
+
+Scénario: Calcul de la valeur d'un portefeuille avec deux actions différentes
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| CA     | 0,2    |
+		| SG     | 0,7    |
+	Quand on demande au service de courtage la création du portefeuille "FOO-13"
+	Et qu'on demande au service de courtage d'ajouter les actions suivantes :
+		| Portefeuille | Action | Nombre |
+		| FOO-13       | CA     | 2      |
+		| FOO-13       | SG     | 4      |
+	Et qu'on demande le calcul de la valeur du portefeuille "FOO-13"
+	Alors la valeur du portefeuille est 3,2
+
+Scénario: Calcul de la valeur d'un portefeuille en ajoutant 2 actions au même titre
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| CA     | 0,2    |
+	Quand on demande au service de courtage la création du portefeuille "FOO-14"
+	Et qu'on demande au service de courtage d'ajouter les actions suivantes :
+		| Portefeuille | Action | Nombre |
+		| FOO-14       | CA     | 2      |
+		| FOO-14       | CA     | 4      |
+	Et qu'on demande le calcul de la valeur du portefeuille "FOO-14"
+	Alors la valeur du portefeuille est 1,2
+```
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-160px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-429316bb77ceccf53e5f2250f8a8d088.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-3 etape-3
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -pl courtage-domain -am -Dcucumber.filter.tags="@E3"
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 4
+
+* enrichissement du domaine métier
+* enrichissement du bouchon Bourse
+</script></section><section data-markdown><script type="text/template">
+## Nouvelles exigences à couvrir
+
+<div style="font-size:0.6em">
+
+```gherkin
+Scénario: Calcul de la valeur de plusieurs portefeuilles non vides
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| CA     | 0,2    |
+		| SG     | 0,5    |
+	Quand on demande au service de courtage la création du portefeuille "myCard"
+	Et qu'on demande au service de courtage la création du portefeuille "eWallet"
+	Et qu'on demande au service de courtage d'ajouter les actions suivantes :
+		| Portefeuille | Action | Nombre |
+		| myCard       | CA     | 2      |
+		| myCard       | SG     | 4      |
+		| eWallet      | CA     | 6      |
+		| eWallet      | SG     | 5      |
+	Et qu'on demande au service de courtage le calcul de la valeur de tous les portefeuilles
+	Alors la valeur pour l'ensemble des portefeuilles est 6,1
+
+Scénario: Calcul de la valeur des actions sans portefeuille
+	Quand on demande au service de courtage le calcul de la valeur de tous les portefeuilles
+	Alors la valeur pour l'ensemble des portefeuilles est 0,0
+
+Scénario: Calcul de la valeur d'un portefeuille en ajoutant 2 actions au même titre
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| CA     | 0,2    |
+	Quand on demande au service de courtage la création du portefeuille "TOTO"
+	Et qu'on demande au service de courtage d'ajouter l'action suivante :
+		| Portefeuille | Action | Nombre |
+		| TOTO         | CA     | 2      |
+	Et qu'on demande le calcul de la valeur du portefeuille "TOTO"
+	Alors la valeur du portefeuille est 0,4
+	Quand les cours de bourse sont :
+		| Action | Valeur |
+		| CA     | 0,4    |
+	Et qu'on demande le calcul de la valeur du portefeuille "TOTO"
+	Alors la valeur du portefeuille est 0,8
+
+Scénario: Calcul de la valeur d'un portefeuille inconnu
+	Quand on demande le calcul de la valeur du portefeuille "INCONNU"
+	Alors une exception est levée : Portefeuille non géré
+
+Scénario: La valeur totale du portefeuille doit être correctement recalculée si le cours des actions changent
+	Soit les cours de bourse suivants :
+		| Action | Valeur |
+		| CA     | 0,2    |
+		| SG     | 0,5    |
+	Quand on demande au service de courtage la création du portefeuille "myCard"
+	Et qu'on demande au service de courtage la création du portefeuille "eWallet"
+	Et qu'on demande au service de courtage d'ajouter les actions suivantes :
+		| Portefeuille | Action | Nombre |
+		| myCard       | CA     | 2      |
+		| myCard       | SG     | 4      |
+		| eWallet      | CA     | 6      |
+		| eWallet      | SG     | 5      |
+	Et qu'on demande au service de courtage le calcul de la valeur de tous les portefeuilles
+	Alors la valeur pour l'ensemble des portefeuilles est 6,1
+	Mais si les cours de bourse deviennent :
+		| Action | Valeur |
+		| CA     | 1,1    |
+		| SG     | 0,7    |
+	Et qu'on demande au service de courtage le calcul de la valeur de tous les portefeuilles
+	Alors la valeur pour l'ensemble des portefeuilles est 15,1
+```
+
+</div>
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-160px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-322c023b92992ca91dd88a0b7b7ef046.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-4 etape-4
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -pl courtage-domain -am -Dcucumber.filter.tags="@E4"
+```
+</script></section></section><section  data-markdown><script type="text/template">
+## Pause
+</script></section><section ><section data-markdown><script type="text/template">
+## Étape 5
+
+services métier via API REST<br/>
+**... sans modifier le code métier**
+
+* module `courtage-application-springboot`
+	* avec un 1er service REST :<br/>
+	  `/courtage/version`
+	* UI pour tester les APIs REST :<br/>
+	  <smal><a href="http://localhost:8081/swagger-ui.html">http://localhost:8081/swagger-ui.html</a></small>
+</script></section><section data-markdown><script type="text/template">
+### À developer :
+
+* Création d'un portefeuille :<br/>
+  `POST /courtage/portefeuilles/{nom}`
+* Vérification de l'existance d'un portefeuille :<br/>
+  `GET /courtage/portefeuilles/{nom}`
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-120px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-3f6498f06851e65806b27526e70823b3.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+### Injection de dépendances
+
+Pour caractériser les services du domaine métier, création d'une annotation :
+
+```java
+
+@Target({ElementType.TYPE})
+@Retention(value = RetentionPolicy.RUNTIME)
+public @interface DomainService {
+}
+```
+
+Pour indiquer à Spring de les prendre en compte :
+
+```java
+@ComponentScan(
+	basePackageClasses = {
+		CourtageSpringbootApplication.class,
+		DomainService.class
+	},
+	includeFilters = {@ComponentScan.Filter(
+		value = {DomainService.class},
+		type = FilterType.ANNOTATION
+	)}
+)
+```
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-5 etape-5
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -Dcucumber.filter.tags="@E5"
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 6
+
+* Persistence des données en base<br/>
+  ➥ gérée dans une base H2
+* Calcul de la valorisation d'un portefeuille :<br/>
+  `GET /courtage/portefeuilles/{nom}/valorisation`
+* Achat d'actions dans un portefeuille :<br/>
+  `POST /courtage/portefeuilles/{nom}/actions`
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-120px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-1082a015a1126db380de01ae04f9c242.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-6 etape-6
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -Dcucumber.filter.tags="@E6"
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 7
+
+* Appel HTTP pour la bourse
+* Enrichissement des API REST :
+	* Restitution des positions d'un portefeuille :<br/>
+	  `GET /courtage/portefeuilles/{nom}/positions`
+	* Calcul de valorisation des portefeuilles gérés :<br/>
+	  `GET /courtage/avoirs`
+</script></section><section data-markdown><script type="text/template">
+#### Service externe : cours de bourse
+
+* Requête :<br/>
+  <code>GET https:// … /finance/quote/{action}</code>
+
+* Exemple de réponse pour<br/>
+  `https:// … /finance/quote/CA` :
+
+```json
+{
+	"symbol": "CA",
+	"regularMarketPrice": 1.795
+}
+```
+
+➥ Service simulé avec Wiremock
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-90px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-558fb106483f1d2e630ca77d8a92932e.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-7 etape-7
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -Dcucumber.filter.tags="@E7"
+```
+</script></section></section><section ><section data-markdown><script type="text/template">
+## Étape 8
+
+* Validation de la cohérence fonctionnelle des objets du domaine
+</script></section><section data-markdown><script type="text/template">
+<details style="margin:-90px 0 0 0;font-size:.3em;position:absolute;border:1px solid #000;background:#FFF" open>
+<summary>legend</summary>
+<p style="margin:.5em;padding:.3em;background:#e55039;color:#FFF">Ressource de scope 'test'</p>
+<p style="margin:.5em;padding:.3em;background:#b8e994">Ressource ajoutée</p>
+<p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
+</details>
+
+<img src=".speaker/plantumlGenerated/plantuml-7c75b7ad03a3c5a80bd8956701cd7b8b.svg" alt=""/>
+</script></section><section data-markdown><script type="text/template">
+Point de départ (facultatif) :
+
+```bash
+git stash && git switch -c dev-etape-8 etape-8
+```
+
+Point d'arrivée :
+
+```bash
+# La commande suivante doit terminer en 'BUILD SUCCESS'
+./mvnw clean verify -Dcucumber.filter.tags="@E8"
+```
+</script></section></section><section  data-markdown><script type="text/template">
+## Conclusion
+
+Nous avons vu :
+
+* mettre en œuvre une "clean architecture" (suivant les principes de l'architecture hexagonale)
+* la gestion de la persistance avec Spring
+* la validation de la cohérence fonctionnelle des objets du domaine
+</script></section></div>
+    </div>
+
+    <script src=".speaker/keynote_assets/dist/reveal.js"></script>
+
+    <script src=".speaker/keynote_assets/plugin/markdown/markdown.js"></script>
+    <script src=".speaker/keynote_assets/plugin/highlight/highlight.js"></script>
+    <script src=".speaker/keynote_assets/plugin/zoom/zoom.js"></script>
+    <script src=".speaker/keynote_assets/plugin/notes/notes.js"></script>
+    <script src=".speaker/keynote_assets/plugin/math/math.js"></script>
+    <script>
+      function extend() {
+        var target = {};
+        for (var i = 0; i < arguments.length; i++) {
+          var source = arguments[i];
+          for (var key in source) {
+            if (source.hasOwnProperty(key)) {
+              target[key] = source[key];
+            }
+          }
+        }
+        return target;
+      }
+
+      // default options to init reveal.js
+      var defaultOptions = {
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'default', // none/fade/slide/convex/concave/zoom
+        plugins: [
+          RevealMarkdown,
+          RevealHighlight,
+          RevealZoom,
+          RevealNotes,
+          RevealMath
+        ]
+      };
+
+      // options from URL query string
+      var queryOptions = Reveal().getQueryHash() || {};
+
+      var options = extend(defaultOptions, {"slideNumber":true,"showSlideNumber":"print","pdfMaxPagesPerSlide":1,"disableLayout":false,"width":1240,"height":700,"margin":0.02,"minScale":0.1,"maxScale":3}, queryOptions);
+    </script>
+
+
+    <script>
+      Reveal.initialize(options);
+    </script>
+  </body>
+</html>

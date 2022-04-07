@@ -6,6 +6,12 @@ Ce dossier contient l'ensemble des ressources utiles pour les organisateurs ou o
 npm install && npm run keynote
 ```
 
+## Génération de la Keynote au format HTML
+
+```bash
+npm install && npm run html
+```
+
 ## Pour imprimer la Keynote en PDF
 
 ```bash

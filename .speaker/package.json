@@ -8,6 +8,7 @@
 	"scripts": {
 		"keynote": "reveal-md ../README.md --preprocessor preproc.js",
 		"keynote-live-reload": "reveal-md ../README.md --preprocessor preproc.js -w",
+		"html": "reveal-md ../README.md --preprocessor preproc.js --static ..",
 		"pdf": "reveal-md ../README.md --preprocessor preproc.js --print keynote.pdf"
 	}
 }

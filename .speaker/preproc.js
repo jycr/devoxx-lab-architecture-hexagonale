@@ -1860,7 +1860,7 @@ function plantUmlDiagramToUrl(script) {
 }
 
 // specify target dir for rendered diagrams
-var plantumlDir = "plantumlGenerated.tmp/";
+var plantumlDir = "plantumlGenerated/";
 if (!fs.existsSync(plantumlDir)) {
 	fs.mkdirSync(plantumlDir);
 }
