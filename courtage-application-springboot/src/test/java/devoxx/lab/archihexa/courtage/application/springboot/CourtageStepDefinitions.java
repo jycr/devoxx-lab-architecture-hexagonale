@@ -33,6 +33,8 @@ public class CourtageStepDefinitions implements Fr {
 	};
 
 	public CourtageStepDefinitions() {
+		CourtageSpringbootApplication.raz();
+
 		// étape 5
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
 			throw new io.cucumber.java8.PendingException();
