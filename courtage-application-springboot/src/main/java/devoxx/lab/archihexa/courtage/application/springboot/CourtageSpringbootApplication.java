@@ -1,10 +1,14 @@
 package devoxx.lab.archihexa.courtage.application.springboot;
 
+import devoxx.lab.archihexa.courtage.application.springboot.adapters.mixin.AchatJsonDto;
+import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.event.EventListener;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.util.Optional;
 
@@ -30,8 +34,19 @@ public class CourtageSpringbootApplication {
 			.map(app -> app.port);
 	}
 
+	static void raz() {
+	}
+
 	@EventListener
 	public void onApplicationEvent(final ServletWebServerInitializedEvent event) {
 		port = event.getWebServer().getPort();
+	}
+
+	@Bean
+	Jackson2ObjectMapperBuilder objectMapperBuilder() {
+		Jackson2ObjectMapperBuilder builder = new Jackson2ObjectMapperBuilder();
+		// Configure the builder to suit your needs
+		builder.mixIn(Achat.class, AchatJsonDto.class);
+		return builder;
 	}
 }
