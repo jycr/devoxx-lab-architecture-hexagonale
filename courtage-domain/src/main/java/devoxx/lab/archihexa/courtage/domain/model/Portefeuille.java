@@ -7,11 +7,15 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Optional.ofNullable;
 
 public class Portefeuille {
-	private final String nom;
+	private String nom;
 	private final Map<String, Integer> actions = new HashMap<>();
 
 	public Portefeuille(String nom) {
 		this.nom = nom;
+	}
+
+	private Portefeuille() {
+		// JPA constructor
 	}
 
 	public String getNom() {

@@ -3,9 +3,14 @@ package devoxx.lab.archihexa.courtage.application.springboot;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
+import io.restassured.RestAssured;
+import io.restassured.filter.log.LogDetail;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
+import io.restassured.path.json.config.JsonPathConfig;
+import io.restassured.response.ValidatableResponse;
+import io.restassured.specification.RequestSpecification;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -13,54 +18,76 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static io.restassured.RestAssured.*;
 import static java.util.Optional.ofNullable;
+import static org.hamcrest.Matchers.comparesEqualTo;
+import static org.hamcrest.Matchers.equalTo;
+import static io.restassured.config.JsonConfig.jsonConfig;
 
 public class CourtageStepDefinitions implements Fr {
-	private static final ObjectMapper BIGDECIMAL_MAPPER = new ObjectMapper() {
-		@Override
-		public Object deserialize(ObjectMapperDeserializationContext context) {
-			return new BigDecimal(context.getDataToDeserialize().asString());
-		}
 
-		@Override
-		public Object serialize(ObjectMapperSerializationContext context) {
-			return ofNullable(context.getObjectToSerialize())
-				.map(BigDecimal.class::cast)
-				.map(BigDecimal::toString)
-				.orElse(null);
-		}
-	};
+	private ValidatableResponse response;
 
 	public CourtageStepDefinitions() {
+
+		RequestSpecification rs = given().config(config().jsonConfig(jsonConfig().numberReturnType(JsonPathConfig.NumberReturnType.BIG_DECIMAL)));
 		CourtageSpringbootApplication.raz();
 
 		// étape 5
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			response = rs.when()
+				.post("/courtage/portefeuilles/" + nomPortefeuille)
+				.then();
+
 		});
 		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			response
+				.assertThat()
+				.statusCode(201)
+				.header("location", "http://localhost:" + port + "/courtage/portefeuilles/" + nomPortefeuille);
 		});
 		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			response = rs.when()
+				.head("/courtage/portefeuilles/" + nomPortefeuille)
+				.then()
+				.assertThat()
+				.statusCode(204);
 		});
 		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			response = rs.when()
+				.head("/courtage/portefeuilles/" + nomPortefeuille)
+				.then()
+				.assertThat()
+				.statusCode(404);
 		});
 		Alors("une exception est levée : Portefeuille déjà géré", () -> {
-			throw new io.cucumber.java8.PendingException();
+			response
+				.assertThat()
+				.statusCode(400);
 		});
 
 		// étape 6
 		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			response = rs.when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille + "/valeur")
+				.then()
+			;
 		});
 		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) -> {
-			throw new io.cucumber.java8.PendingException();
+			response
+				.log().ifValidationFails(LogDetail.BODY)
+
+				.statusCode(200)
+				.body("valeur", comparesEqualTo(valeur));
 		});
 		Alors("une exception est levée : Portefeuille non géré", () -> {
-			throw new io.cucumber.java8.PendingException();
+			response
+				.assertThat()
+				.statusCode(404);
 		});
 
 		// étape 7

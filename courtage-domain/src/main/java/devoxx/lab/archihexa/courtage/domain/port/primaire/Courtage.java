@@ -9,6 +9,7 @@ import devoxx.lab.archihexa.courtage.domain.port.secondaire.ServiceBourse;
 
 import java.math.BigDecimal;
 
+@DomainService
 public class Courtage implements ServiceCourtage {
 	private final PortefeuilleRepository portefeuilleRepository;
 	private final ServiceBourse serviceBourse;
