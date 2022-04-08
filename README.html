@@ -461,11 +461,19 @@ services métier via API REST<br/>
 <p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
 </details>
 
-<img src=".speaker/plantumlGenerated/plantuml-3f6498f06851e65806b27526e70823b3.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-57da6b7033bfd45a96ea092cae28a406.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 ### Injection de dépendances
 
-Pour caractériser les services du domaine métier, création d'une annotation :
+2 orientations possibles :
+* Utilisation des annotations de l'API CDI<br/>
+  <small>(non liées à une implémentation technique)</small>
+* Utilisation d'annotations spécifiques
+</script></section><section data-markdown><script type="text/template">
+####  CDI avec annotation spécifique
+
+Définition d'une annotation<br/>
+<small>pour caractériser les services du domaine métier :</small>
 
 ```java
 
@@ -481,7 +489,7 @@ Pour indiquer à Spring de les prendre en compte :
 @ComponentScan(
 	basePackageClasses = {
 		CourtageSpringbootApplication.class,
-		DomainService.class
+		ClassAppartenantAuPackageRacineDesClassDuDomaineAScanner.class
 	},
 	includeFilters = {@ComponentScan.Filter(
 		value = {DomainService.class},
@@ -593,7 +601,7 @@ Point d'arrivée :
 <p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
 </details>
 
-<img src=".speaker/plantumlGenerated/plantuml-7c75b7ad03a3c5a80bd8956701cd7b8b.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-42629c5f34c32dfa19341e6678cbded2.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 Point de départ (facultatif) :
 

@@ -855,7 +855,7 @@ skinparam useBetaStyle true
 
 title Étape 5
 rectangle Tests <<tests>> {
-    rectangle "Cucumber\nApplication Step\nDefinitions" as stepDefs <<modif>> {
+    rectangle "Cucumber\nApplication Step\nDefinitions" as stepDefs {
     }
 }
 package API {
@@ -913,7 +913,17 @@ stepDefs -[bold]l-> CourtageResource : via RestAssured
 
 ### Injection de dépendances
 
-Pour caractériser les services du domaine métier, création d'une annotation :
+2 orientations possibles :
+* Utilisation des annotations de l'API CDI<br/>
+  <small>(non liées à une implémentation technique)</small>
+* Utilisation d'annotations spécifiques
+
+----
+
+####  CDI avec annotation spécifique
+
+Définition d'une annotation<br/>
+<small>pour caractériser les services du domaine métier :</small>
 
 ```java
 
@@ -929,7 +939,7 @@ Pour indiquer à Spring de les prendre en compte :
 @ComponentScan(
 	basePackageClasses = {
 		CourtageSpringbootApplication.class,
-		DomainService.class
+		ClassAppartenantAuPackageRacineDesClassDuDomaineAScanner.class
 	},
 	includeFilters = {@ComponentScan.Filter(
 		value = {DomainService.class},
@@ -1259,7 +1269,7 @@ skinparam useBetaStyle true
 
 title Étape 8
 rectangle Tests <<tests>> {
-    rectangle "Cucumber\nApplication Step\nDefinitions" as stepDefs <<modif>> {
+    rectangle "Cucumber\nApplication Step\nDefinitions" as stepDefs {
     }
 }
 package API {

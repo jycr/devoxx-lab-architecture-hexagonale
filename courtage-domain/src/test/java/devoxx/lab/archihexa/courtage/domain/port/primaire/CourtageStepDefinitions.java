@@ -5,6 +5,8 @@ import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.math.BigDecimal;
 import java.text.NumberFormat;
 import java.text.ParseException;
@@ -12,6 +14,15 @@ import java.util.Locale;
 import java.util.Map;
 
 public class CourtageStepDefinitions implements Fr {
+	static {
+		// Pour s'assurer des messages BeanValidation en Fr
+		Locale.setDefault(Locale.FRANCE);
+	}
+
+	private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+
+	private final ServiceCourtage serviceCourtage = null /* // TODO */;
+
 	public CourtageStepDefinitions() {
 		// étape 1
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {

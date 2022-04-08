@@ -1,11 +1,15 @@
 package devoxx.lab.archihexa.courtage.application.springboot;
 
+import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.http.ContentType;
 import io.restassured.mapper.ObjectMapper;
 import io.restassured.mapper.ObjectMapperDeserializationContext;
 import io.restassured.mapper.ObjectMapperSerializationContext;
+import io.restassured.response.ValidatableResponse;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
@@ -13,8 +17,13 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
+import static devoxx.lab.archihexa.courtage.application.springboot.CucumberLifecycleHandler.getApiBourseUrl;
+import static io.restassured.RestAssured.*;
 import static java.util.Optional.ofNullable;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.equalTo;
 
 public class CourtageStepDefinitions implements Fr {
 	private static final ObjectMapper BIGDECIMAL_MAPPER = new ObjectMapper() {
@@ -32,36 +41,60 @@ public class CourtageStepDefinitions implements Fr {
 		}
 	};
 
+	private ValidatableResponse response;
+
 	public CourtageStepDefinitions() {
 		CourtageSpringbootApplication.raz();
 
 		// étape 5
-		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) ->
+			response = when()
+				.post("/courtage/portefeuilles/" + nomPortefeuille)
+				.then());
+		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) ->
+			response
+				.assertThat()
+				.statusCode(201)
+				.header("location", "http://localhost:" + port + "/courtage/portefeuilles/" + nomPortefeuille));
 		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
+			when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille)
+				.then()
+				.assertThat()
+				.statusCode(200);
 		});
-		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("une exception est levée : Portefeuille déjà géré", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) ->
+			when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille)
+				.then()
+				.assertThat()
+				.statusCode(404));
+		Alors("une exception est levée : Portefeuille déjà géré", () ->
+			response
+				.assertThat()
+				.statusCode(400)
+				.body(equalTo("Portefeuille déjà géré")));
 
 		// étape 6
-		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
-		Alors("une exception est levée : Portefeuille non géré", () -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) ->
+			response = when()
+				.get("/courtage/portefeuilles/" + nomPortefeuille + "/valorisation")
+				.then());
+		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) ->
+			assertThat(
+				response
+					.assertThat()
+					.statusCode(200)
+					.extract()
+					.body()
+					.as(BigDecimal.class, BIGDECIMAL_MAPPER)
+			)
+				.isEqualByComparingTo(valeur));
+		Alors("une exception est levée : Portefeuille non géré", () ->
+			response
+				.assertThat()
+				.statusCode(404)
+				.body(equalTo("Portefeuille non géré")));
 
 		// étape 7
 		DataTableType(CoursBourse.CONVERTER);
@@ -78,23 +111,59 @@ public class CourtageStepDefinitions implements Fr {
 			})
 		);
 		Quand("on demande au service de bourse la valeur de l'action {string}", (String nomAction) -> {
-			throw new io.cucumber.java8.PendingException();
+			response = given().spec(
+					new RequestSpecBuilder()
+						.setBaseUri(getApiBourseUrl())
+						.setBasePath("/finance/quote/")
+						.build()
+				).when()
+				.get(nomAction)
+				.then();
 		});
-		Alors("la valeur récupérée pour l'action est {bigdecimal}", (BigDecimal valeurAction) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("la valeur récupérée pour l'action est {bigdecimal}", (BigDecimal valeurAction) ->
+			assertThat(
+				new BigDecimal(
+					response
+						.assertThat()
+						.statusCode(200)
+						.extract()
+						.jsonPath()
+						.getString("regularMarketPrice")
+				)
+			)
+				.isEqualByComparingTo(valeurAction));
+
 		DataTableType(AjoutAction.CONVERTER);
 		Quand("^on demande au service de courtage d'ajouter (?:l'|les )actions? suivantes? :$", (DataTable dataTable) ->
 			dataTable.asList(AjoutAction.class).forEach(ajoutAction -> {
-				throw new io.cucumber.java8.PendingException();
+				response = given()
+					.contentType(ContentType.JSON)
+					.body(new Achat(ajoutAction.action, ajoutAction.nombre))
+					.when()
+					.post("/courtage/portefeuilles/" + ajoutAction.portefeuille + "/actions")
+					.then();
 			})
 		);
 		Quand("on demande au service de courtage le calcul de la valeur de tous les portefeuilles", () -> {
-			throw new io.cucumber.java8.PendingException();
+			response = when()
+				.get("/courtage/portefeuilles/avoirs")
+				.then();
 		});
-		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) -> {
-			throw new io.cucumber.java8.PendingException();
-		});
+		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) -> assertThat(
+			response
+				.assertThat()
+				.statusCode(200)
+				.extract()
+				.body()
+				.as(BigDecimal.class, BIGDECIMAL_MAPPER)
+		)
+			.isEqualByComparingTo(valeurPortefeuilles));
+		// étape 8
+		Alors("une exception est levée : Donnée erronée avec le message {string}", (String message) ->
+			response
+				.assertThat()
+				.statusCode(400)
+				.body(equalTo("Donnée(s) erronée(s): \n" + "\t" + message)));
 	}
 
 	private static class CoursBourse {
