@@ -2,17 +2,22 @@ package devoxx.lab.archihexa.courtage.application.springboot;
 
 import devoxx.lab.archihexa.courtage.application.springboot.adapters.mixin.AchatJsonDto;
 import devoxx.lab.archihexa.courtage.domain.model.Achat;
+import devoxx.lab.archihexa.courtage.domain.port.primaire.ServiceCourtage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.context.ServletWebServerInitializedEvent;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.event.EventListener;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 
 import java.util.Optional;
 
 @SpringBootApplication
+@ComponentScan(
+	basePackageClasses = {CourtageSpringbootApplication.class, ServiceCourtage.class}
+)
 public class CourtageSpringbootApplication {
 	private static ConfigurableApplicationContext applicationContext = null;
 	private int port = -1;

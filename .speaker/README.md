@@ -12,6 +12,9 @@ npm install && npm run keynote
 npm install && npm run html
 ```
 
+NB : De nombreuses petites adaptations restent à corriger dans les fichiers générés
+(cf. se référer aux ressources modifiés via `git status`).
+
 ## Pour imprimer la Keynote en PDF
 
 ```bash

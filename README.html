@@ -39,10 +39,10 @@ git switch main && ./mvnw dependency:go-offline
 </script></section><section data-markdown><script type="text/template">
 ## Envie de se familiariser avec les concepts avant ?
 
-- [Pérennisez votre métier avec l’architecture hexagonale <small>(Publicis Sapient - ex: Xebia)</small>](https://blog.xebia.fr/2016/03/16/perennisez-votre-metier-avec-larchitecture-hexagonale/)
-- [Architecture Hexagonale : trois principes et un exemple d’implémentation <small>(Octo)</small>](https://blog.octo.com/architecture-hexagonale-trois-principes-et-un-exemple-dimplementation/)
-- [Architecture hexagonale pour les nuls <small>(Y. Chéné - Devoxx FR 2018)</small>](https://www.youtube.com/watch?v=Hi5aDfRe-aE)
-- [Architecture hexagonale <small>(Eleven Labs)</small>](https://blog.eleven-labs.com/fr/architecture-hexagonale/)
+- [Pérennisez votre métier avec l’architecture hexagonale <span class="small">(Publicis Sapient - ex: Xebia)</span>](https://blog.xebia.fr/2016/03/16/perennisez-votre-metier-avec-larchitecture-hexagonale/)
+- [Architecture Hexagonale : trois principes et un exemple d’implémentation <span class="small">(Octo)</span>](https://blog.octo.com/architecture-hexagonale-trois-principes-et-un-exemple-dimplementation/)
+- [Architecture hexagonale pour les nuls <span class="small">(Y. Chéné - Devoxx FR 2018)</span>](https://www.youtube.com/watch?v=Hi5aDfRe-aE)
+- [Architecture hexagonale <span class="small">(Eleven Labs)</span>](https://blog.eleven-labs.com/fr/architecture-hexagonale/)
 
 <aside class="notes"><p><strong>Autres ressources</strong></p>
 <ul>
@@ -55,7 +55,7 @@ git switch main && ./mvnw dependency:go-offline
 <table>
 <tr>
 	<th scope="col" style="text-align:center">Pascal</th>
-	<th scope="col" style="text-align:center">JY</th>
+	<th scope="col" style="text-align:center">Jean-Yves</th>
 </tr>
 <tr>
 	<td><img src="https://s3.amazonaws.com/garmin-connect-prod/profile_images/1b691e8a-88f0-4237-92d9-5def9ae7e8e4-1363476.png" alt="" width="300"/></td>
@@ -101,22 +101,22 @@ Développer un petit système de courtage boursier
 
 ... en plusieurs étapes jusqu'à la solution finale :
 
-<img src=".speaker/plantumlGenerated/plantuml-7a9008ccb9171869ee65a6bdc08749c0.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-4c53362abb360044b65f05890878bc64.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 ### Pour chaque étape ...
 
-* un tag Git<br/>
-  <small>partir duquel vous pourrez créer une branche pour vos développements</small>
-* les exigences à couvrir<br/>
-  <small>sous forme de scénarios écrit en langage [Gherkin](https://cucumber.io/docs/gherkin/)</small>
+* un tag Git
+  <div class="small">partir duquel vous pourrez créer une branche pour vos développements</div>
+* les exigences à couvrir
+  <div class="small">sous forme de scénarios écrit en <a href="https://cucumber.io/docs/gherkin/">langage Gherkin</a></div>
 </script></section><section data-markdown><script type="text/template">
 ### La structure de base du projet ...
 
 comporte :
 
 * une chaine de build Maven
-* une mise en place de Cucumber<br/>
-  <small>avec un embryon de "glue" pour faciliter l'exécution des exigences</small>
+* une mise en place de Cucumber
+  <div class="small">avec un embryon de "glue" pour faciliter l'exécution des exigences</div>
 </script></section></section><section ><section data-markdown><script type="text/template">
 ## Étape 1 : objectif
 
@@ -179,8 +179,8 @@ Point d'arrivée :
 ## Étape 2
 
 * Mise en oeuvre du *PortefeuilleRepository*
-* Création d'un bouchon<br/>
-  <small>(une implémentation basée sur `HashMap`, dans les packages de test, suffira)</small>
+* Création d'un bouchon
+  <div class="small">(une implémentation basée sur <code>HashMap</code>, dans les packages de test, suffira)</div>
 </script></section><section data-markdown><script type="text/template">
 ## Nouvelles exigences à couvrir
 
@@ -439,7 +439,7 @@ Point d'arrivée :
 ## Étape 5
 
 services métier via API REST<br/>
-**... sans modifier le code métier**
+**... sans modifier le code métier** <span class="small">(ou presque)</span>
 
 * module `courtage-application-springboot`
 	* avec un 1er service REST :<br/>
@@ -461,19 +461,22 @@ services métier via API REST<br/>
 <p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
 </details>
 
-<img src=".speaker/plantumlGenerated/plantuml-57da6b7033bfd45a96ea092cae28a406.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-89f4cd3dc3e6410ae8bb03472a68e134.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 ### Injection de dépendances
 
 2 orientations possibles :
-* Utilisation des annotations de l'API CDI<br/>
-  <small>(non liées à une implémentation technique)</small>
+* Utilisation des annotations de l'API CDI <div class="small">(non liées à une implémentation technique)</div>
+  * `javax.annotation.ManagedBean`
+     <span class="small">*Jakarta Annotations API* (v1.x)</span>
+  * `jakarta.annotation.ManagedBean`
+     <span class="small">*Jakarta Annotations API* (v2.x)</span>
 * Utilisation d'annotations spécifiques
 </script></section><section data-markdown><script type="text/template">
 ####  CDI avec annotation spécifique
 
-Définition d'une annotation<br/>
-<small>pour caractériser les services du domaine métier :</small>
+Définition d'une annotation
+<div class="small">pour caractériser les services du domaine métier :</div>
 
 ```java
 
@@ -527,7 +530,7 @@ Point d'arrivée :
 <p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
 </details>
 
-<img src=".speaker/plantumlGenerated/plantuml-1082a015a1126db380de01ae04f9c242.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-8d59f931680919dbf0672e487190181e.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 Point de départ (facultatif) :
 
@@ -575,7 +578,7 @@ Point d'arrivée :
 <p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
 </details>
 
-<img src=".speaker/plantumlGenerated/plantuml-558fb106483f1d2e630ca77d8a92932e.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-4e3afa32c5159675ce6814389deefafc.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 Point de départ (facultatif) :
 
@@ -601,7 +604,7 @@ Point d'arrivée :
 <p style="margin:.5em;padding:.3em;background:#f8c291">Ressource modifiée</p>
 </details>
 
-<img src=".speaker/plantumlGenerated/plantuml-42629c5f34c32dfa19341e6678cbded2.svg" alt=""/>
+<img src=".speaker/plantumlGenerated/plantuml-7816ad54e230a3c9f05733d38ef421b9.svg" alt=""/>
 </script></section><section data-markdown><script type="text/template">
 Point de départ (facultatif) :
 
@@ -620,7 +623,7 @@ Point d'arrivée :
 
 Nous avons vu :
 
-* mettre en œuvre une "clean architecture" (suivant les principes de l'architecture hexagonale)
+* mettre en œuvre une "clean architecture" <div class="small">suivant les principes de l'architecture hexagonale</div>
 * la gestion de la persistance avec Spring
 * la validation de la cohérence fonctionnelle des objets du domaine
 </script></section></div>
