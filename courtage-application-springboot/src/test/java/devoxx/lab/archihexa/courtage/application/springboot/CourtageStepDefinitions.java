@@ -1,13 +1,10 @@
 package devoxx.lab.archihexa.courtage.application.springboot;
 
+import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java8.DataTableEntryDefinitionBody;
 import io.cucumber.java8.Fr;
-import io.restassured.RestAssured;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.mapper.ObjectMapper;
-import io.restassured.mapper.ObjectMapperDeserializationContext;
-import io.restassured.mapper.ObjectMapperSerializationContext;
+import io.restassured.http.ContentType;
 import io.restassured.path.json.config.JsonPathConfig;
 import io.restassured.response.ValidatableResponse;
 import io.restassured.specification.RequestSpecification;
@@ -18,15 +15,11 @@ import java.text.ParseException;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.stubFor;
-import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static io.restassured.RestAssured.*;
-import static java.util.Optional.ofNullable;
-import static org.hamcrest.Matchers.comparesEqualTo;
-import static org.hamcrest.Matchers.equalTo;
 import static io.restassured.config.JsonConfig.jsonConfig;
+import static org.hamcrest.Matchers.comparesEqualTo;
 
 public class CourtageStepDefinitions implements Fr {
 
@@ -79,8 +72,6 @@ public class CourtageStepDefinitions implements Fr {
 		});
 		Alors("la valeur du portefeuille est {bigdecimal}", (BigDecimal valeur) -> {
 			response
-				.log().ifValidationFails(LogDetail.BODY)
-
 				.statusCode(200)
 				.body("valeur", comparesEqualTo(valeur));
 		});
@@ -105,24 +96,34 @@ public class CourtageStepDefinitions implements Fr {
 			})
 		);
 		Quand("on demande au service de bourse la valeur de l'action {string}", (String nomAction) -> {
-			throw new io.cucumber.java8.PendingException();
 		});
 		Alors("la valeur récupérée pour l'action est {bigdecimal}", (BigDecimal valeurAction) -> {
-			throw new io.cucumber.java8.PendingException();
 		});
+
 		DataTableType(AjoutAction.CONVERTER);
 		Quand("^on demande au service de courtage d'ajouter (?:l'|les )actions? suivantes? :$", (DataTable dataTable) ->
+
 			dataTable.asList(AjoutAction.class).forEach(ajoutAction -> {
-				throw new io.cucumber.java8.PendingException();
+				response = rs.when()
+					.contentType(ContentType.JSON)
+					.body(new Achat(ajoutAction.action, ajoutAction.nombre))
+					.post("/courtage/portefeuilles/" + ajoutAction.portefeuille + "/actions")
+					.then();
 			})
 		);
 		Quand("on demande au service de courtage le calcul de la valeur de tous les portefeuilles", () -> {
-			throw new io.cucumber.java8.PendingException();
+			response = rs.when()
+				.get("/courtage/portefeuilles/valorisation")
+				.then()
+			;
 		});
 		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) -> {
-			throw new io.cucumber.java8.PendingException();
+			response
+				.statusCode(200)
+				.body("valeur", comparesEqualTo(valeurPortefeuilles));
 		});
 	}
+
 
 	private static class CoursBourse {
 		private static final NumberFormat NF = NumberFormat.getInstance(Locale.FRENCH);

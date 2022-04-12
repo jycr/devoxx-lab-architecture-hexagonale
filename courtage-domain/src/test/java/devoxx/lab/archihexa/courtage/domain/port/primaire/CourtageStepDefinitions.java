@@ -21,20 +21,22 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CourtageStepDefinitions implements Fr {
-	private final PortefeuilleRepository portefeuilleRepository = new PortefeuilleRepositoryMock();
-	private final ServiceBourse serviceBourse = new ServiceBourseMock();
-	private final ServiceCourtage serviceCourtage = new Courtage(portefeuilleRepository, serviceBourse);
+	private static final PortefeuilleRepository portefeuilleRepository= new PortefeuilleRepositoryMock();
+	private static final ServiceBourse serviceBourse= new ServiceBourseMock();
+	private final ServiceCourtage serviceCourtage= new Courtage(portefeuilleRepository, serviceBourse);
 	private Portefeuille portefeuilleCree;
 	private Exception thrownException = null;
 	private BigDecimal valeurPortefeuille = null;
 	private BigDecimal valeurAction = null;
 	private BigDecimal valeurEnsemblePortefeuilles = null;
 
-	public CourtageStepDefinitions() {
+	public CourtageStepDefinitions(/*ServiceBourse serviceBourse, ServiceCourtage serviceCourtage*/) {
+//		this.serviceBourse = serviceBourse;
+//		this.serviceCourtage = serviceCourtage;
 		// étape 1
 		Quand("on demande au service de courtage la création du portefeuille {string}", (String nomPortefeuille) -> {
 			try {
-				portefeuilleCree = serviceCourtage.creerPortefeuille(nomPortefeuille);
+				portefeuilleCree = this.serviceCourtage.creerPortefeuille(nomPortefeuille);
 			} catch (PortefeuilleDejaExistantException e) {
 				thrownException = e;
 			}
@@ -42,16 +44,16 @@ public class CourtageStepDefinitions implements Fr {
 		Alors("l'id du portefeuille créé doit être {string}", (String nomPortefeuille) ->
 			assertThat(portefeuilleCree.getNom()).isEqualTo(nomPortefeuille));
 		Alors("le portefeuille {string} est géré par le service de courtage", (String nomPortefeuille) ->
-			assertThat(serviceCourtage.gere(nomPortefeuille)).isTrue());
+			assertThat(this.serviceCourtage.gere(nomPortefeuille)).isTrue());
 
 		// étape 2
 		Alors("le portefeuille {string} n'est pas géré par le service de courtage", (String nomPortefeuille) ->
-			assertThat(serviceCourtage.gere(nomPortefeuille)).isFalse());
+			assertThat(this.serviceCourtage.gere(nomPortefeuille)).isFalse());
 		Alors("une exception est levée : Portefeuille déjà géré", () ->
 			assertThat(thrownException).isInstanceOf(PortefeuilleDejaExistantException.class));
 		Quand("on demande le calcul de la valeur du portefeuille {string}", (String nomPortefeuille) -> {
 			try {
-				valeurPortefeuille = serviceCourtage.calculerValeurPortefeuille(nomPortefeuille);
+				valeurPortefeuille = this.serviceCourtage.calculerValeurPortefeuille(nomPortefeuille);
 			} catch (PortefeuilleNonGereException e) {
 				thrownException = e;
 			}
@@ -65,11 +67,11 @@ public class CourtageStepDefinitions implements Fr {
 		DataTableType(CoursBourse.CONVERTER);
 		Quand("(si )les cours de bourse suivants/sont/deviennent :", (DataTable dataTable) ->
 			dataTable.asList(CoursBourse.class).forEach(coursBourse ->
-				((ServiceBourseMock) serviceBourse).setCours(coursBourse.action, coursBourse.valeur)
+				((ServiceBourseMock) this.serviceBourse).setCours(coursBourse.action, coursBourse.valeur)
 			)
 		);
 		Quand("on demande au service de bourse la valeur de l'action {string}", (String nomAction) ->
-			this.valeurAction = serviceBourse.recupererCours(nomAction));
+			this.valeurAction = this.serviceBourse.recupererCours(nomAction));
 
 		Alors("la valeur récupérée pour l'action est {bigdecimal}", (BigDecimal valeurAction) ->
 			assertThat(this.valeurAction).isEqualByComparingTo(valeurAction));
@@ -78,7 +80,7 @@ public class CourtageStepDefinitions implements Fr {
 		Quand("^on demande au service de courtage d'ajouter (?:l'|les )actions? suivantes? :$", (DataTable dataTable) ->
 			dataTable.asList(AjoutAction.class).forEach(ajoutAction -> {
 				try {
-					serviceCourtage.ajouteAction(ajoutAction.portefeuille, new Achat(ajoutAction.action, ajoutAction.nombre));
+					this.serviceCourtage.ajouteAction(ajoutAction.portefeuille, new Achat(ajoutAction.action, ajoutAction.nombre));
 				} catch (PortefeuilleNonGereException e) {
 					thrownException = e;
 				}
@@ -87,7 +89,7 @@ public class CourtageStepDefinitions implements Fr {
 
 		// étape 4
 		Quand("on demande au service de courtage le calcul de la valeur de tous les portefeuilles", () ->
-			valeurEnsemblePortefeuilles = serviceCourtage.calculerValeurEnsemblePortefeuilles());
+			valeurEnsemblePortefeuilles = this.serviceCourtage.calculerValeurEnsemblePortefeuilles());
 		Alors("la valeur pour l'ensemble des portefeuilles est {bigdecimal}", (BigDecimal valeurPortefeuilles) ->
 			assertThat(this.valeurEnsemblePortefeuilles).isEqualByComparingTo(valeurPortefeuilles));
 

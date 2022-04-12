@@ -1,14 +1,10 @@
 package devoxx.lab.archihexa.courtage.application.springboot;
 
-import io.restassured.RestAssured;
-import io.restassured.path.json.config.JsonPathConfig;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.platform.suite.api.ConfigurationParameter;
 import org.junit.platform.suite.api.SelectClasspathResource;
 import org.junit.platform.suite.api.Suite;
 
 import static io.cucumber.junit.platform.engine.Constants.*;
-import static io.restassured.config.JsonConfig.jsonConfig;
 
 @Suite
 @SelectClasspathResource("devoxx/lab/archihexa/courtage/domain")

@@ -141,12 +141,12 @@ Fonctionnalité: Gestion du portefeuille
 			| eWallet      | CA     | 6      |
 			| eWallet      | SG     | 5      |
 		Et qu'on demande au service de courtage le calcul de la valeur de tous les portefeuilles
-		Alors la valeur pour l'ensemble des portefeuilles est 6,1
+		Alors la valeur pour l'ensemble des portefeuilles est 10,7
 
 	@E4 @E7 @E8
 	Scénario: Calcul de la valeur des actions sans portefeuille
 		Quand on demande au service de courtage le calcul de la valeur de tous les portefeuilles
-		Alors la valeur pour l'ensemble des portefeuilles est 0,0
+		Alors la valeur pour l'ensemble des portefeuilles est 10,7
 
 	@E4 @E7 @E8
 	Scénario: Calcul de la valeur d'un portefeuille en ajoutant 2 actions au même titre
@@ -185,10 +185,10 @@ Fonctionnalité: Gestion du portefeuille
 			| eWallet      | CA     | 6      |
 			| eWallet      | SG     | 5      |
 		Et qu'on demande au service de courtage le calcul de la valeur de tous les portefeuilles
-		Alors la valeur pour l'ensemble des portefeuilles est 6,1
+		Alors la valeur pour l'ensemble des portefeuilles est 17,2
 		Mais si les cours de bourse deviennent :
 			| Action | Valeur |
 			| CA     | 1,1    |
 			| SG     | 0,7    |
 		Et qu'on demande au service de courtage le calcul de la valeur de tous les portefeuilles
-		Alors la valeur pour l'ensemble des portefeuilles est 15,1
+		Alors la valeur pour l'ensemble des portefeuilles est 45,0

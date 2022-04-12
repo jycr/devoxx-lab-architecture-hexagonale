@@ -2,6 +2,7 @@ package devoxx.lab.archihexa.courtage.application.springboot.controller;
 
 import devoxx.lab.archihexa.courtage.domain.exception.PortefeuilleDejaExistantException;
 import devoxx.lab.archihexa.courtage.domain.exception.PortefeuilleNonGereException;
+import devoxx.lab.archihexa.courtage.domain.model.Achat;
 import devoxx.lab.archihexa.courtage.domain.port.primaire.ServiceCourtage;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -54,6 +55,19 @@ public class CourtageResource {
 
 	}
 
+	@PostMapping(path = "portefeuilles/{nom}/actions")
+	public String ajouterActions(@PathVariable("nom") String nomPortefeuille, @RequestBody Achat achat) throws PortefeuilleNonGereException {
+		serviceCourtage.ajouteAction(nomPortefeuille, achat);
+		return "Action ajoutée au portefeuille";
+	}
+
+	@GetMapping(path = "portefeuilles/valorisation")
+	public Valorisation valeurPortefeuille() {
+
+		return new Valorisation(serviceCourtage.calculerValeurEnsemblePortefeuilles());
+
+	}
+
 	@ResponseStatus(value= HttpStatus.BAD_REQUEST, reason="Already exists")  // 400
 	@ExceptionHandler(PortefeuilleDejaExistantException.class)
 	public void conflict() {
@@ -76,9 +90,10 @@ public class CourtageResource {
 		public BigDecimal getValeur() {
 			return valeur;
 		}
+
+		private static BigDecimal setMinScale(BigDecimal bigDecimal) {
+			return bigDecimal.setScale(Math.max(1, bigDecimal.scale()));
+		}
 	}
 
-	private static BigDecimal setMinScale(BigDecimal bigDecimal) {
-		return bigDecimal.setScale(Math.max(1, bigDecimal.scale()));
-	}
 }
