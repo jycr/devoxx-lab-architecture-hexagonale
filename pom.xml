@@ -12,6 +12,7 @@
 
 	<modules>
 		<module>courtage-domain</module>
+		<module>integration-tests</module>
 		<module>courtage-application-springboot</module>
 	</modules>
 
@@ -20,6 +21,8 @@
 		<maven.compiler.target>${require.java.version}</maven.compiler.target>
 		<maven.compiler.source>${require.java.version}</maven.compiler.source>
 		<maven.compiler.release>${require.java.version}</maven.compiler.release>
+		<!-- La génération des métadonnées pour la réflexion sur les paramètres de méthodes sont nécessaires -->
+		<maven.compiler.parameters>true</maven.compiler.parameters>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.encoding>${project.build.sourceEncoding}</maven.compiler.encoding>
@@ -30,6 +33,11 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<dependency>
+				<groupId>jakarta.inject</groupId>
+				<artifactId>jakarta.inject-api</artifactId>
+				<version>1.0</version>
+			</dependency>
 			<dependency>
 				<groupId>io.cucumber</groupId>
 				<artifactId>cucumber-bom</artifactId>
@@ -48,18 +56,6 @@
 				<groupId>org.assertj</groupId>
 				<artifactId>assertj-core</artifactId>
 				<version>3.22.0</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${springboot.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-			<dependency>
-				<groupId>org.springdoc</groupId>
-				<artifactId>springdoc-openapi-ui</artifactId>
-				<version>1.6.4</version>
 			</dependency>
 			<dependency>
 				<groupId>io.rest-assured</groupId>

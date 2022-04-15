@@ -7,7 +7,7 @@ application:
 
 spring:
     datasource:
-        url: jdbc:h2:./.db/courtage-db
+        url: jdbc:h2:./.db/springboot-h2/courtage-db
         username: sa
         password: password
         driverClassName: org.h2.Driver

@@ -7,10 +7,10 @@ import devoxx.lab.archihexa.courtage.domain.model.Portefeuille;
 import devoxx.lab.archihexa.courtage.domain.port.secondaire.PortefeuilleRepository;
 import devoxx.lab.archihexa.courtage.domain.port.secondaire.ServiceBourse;
 
-import javax.annotation.ManagedBean;
+import javax.inject.Named;
 import java.math.BigDecimal;
 
-@ManagedBean
+@Named("courtage")
 public class Courtage implements ServiceCourtage {
 	private final PortefeuilleRepository portefeuilleRepository;
 	private final ServiceBourse serviceBourse;
